@@ -1,0 +1,197 @@
+# Copyright (C) 2026 Developer
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: undefined 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-admin-themes\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-22T14:53:37+05:30\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: wp-admin-themes\n"
+
+#. Plugin Name of the plugin
+#: wp-admin-themes.php
+#: wp-admin-themes.php:102
+msgid "WP Admin Themes"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-admin-themes.php
+msgid "https://example.com/wp-admin-themes"
+msgstr ""
+
+#. Description of the plugin
+#: wp-admin-themes.php
+msgid "Allows selection of different themes for the WordPress admin dashboard with an Enhanced theme featuring modern UX improvements."
+msgstr ""
+
+#. Author of the plugin
+#: wp-admin-themes.php
+msgid "Developer"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp-admin-themes.php
+msgid "https://example.com"
+msgstr ""
+
+#: wp-admin-themes.php:48
+msgid "Default WordPress"
+msgstr ""
+
+#: wp-admin-themes.php:49
+msgid "The classic WordPress admin appearance with the familiar dark sidebar."
+msgstr ""
+
+#: wp-admin-themes.php:52
+msgid "Classic WordPress styling"
+msgstr ""
+
+#: wp-admin-themes.php:53
+msgid "Dark sidebar navigation"
+msgstr ""
+
+#: wp-admin-themes.php:54
+msgid "Familiar user interface"
+msgstr ""
+
+#: wp-admin-themes.php:55
+msgid "Standard WordPress experience"
+msgstr ""
+
+#: wp-admin-themes.php:59
+msgid "Enhanced"
+msgstr ""
+
+#: wp-admin-themes.php:60
+msgid "Modern, UX-focused design with a light sidebar, improved spacing, and enhanced visual hierarchy."
+msgstr ""
+
+#: wp-admin-themes.php:63
+msgid "Modern light sidebar design"
+msgstr ""
+
+#: wp-admin-themes.php:64
+msgid "Enhanced visual hierarchy"
+msgstr ""
+
+#: wp-admin-themes.php:65
+msgid "Improved spacing & readability"
+msgstr ""
+
+#: wp-admin-themes.php:66
+msgid "Subtle shadows & modern cards"
+msgstr ""
+
+#: wp-admin-themes.php:67
+msgid "Customizable primary color"
+msgstr ""
+
+#: wp-admin-themes.php:68
+msgid "Better focus states"
+msgstr ""
+
+#: wp-admin-themes.php:76
+msgid "WordPress Blue"
+msgstr ""
+
+#: wp-admin-themes.php:77
+msgid "Forest Green"
+msgstr ""
+
+#: wp-admin-themes.php:78
+msgid "Royal Purple"
+msgstr ""
+
+#: wp-admin-themes.php:79
+msgid "Coral Red"
+msgstr ""
+
+#: wp-admin-themes.php:80
+msgid "Golden"
+msgstr ""
+
+#: wp-admin-themes.php:81
+msgid "Bright Green"
+msgstr ""
+
+#: wp-admin-themes.php:82
+msgid "Dark Slate"
+msgstr ""
+
+#: wp-admin-themes.php:83
+msgid "Slate Gray"
+msgstr ""
+
+#: wp-admin-themes.php:84
+msgid "Sunset Orange"
+msgstr ""
+
+#: wp-admin-themes.php:85
+msgid "Ocean Blue"
+msgstr ""
+
+#: wp-admin-themes.php:86
+msgid "Lavender"
+msgstr ""
+
+#: wp-admin-themes.php:87
+msgid "Cherry Red"
+msgstr ""
+
+#: wp-admin-themes.php:103
+msgid "Admin Themes"
+msgstr ""
+
+#: wp-admin-themes.php:232
+msgid "Customize your WordPress admin dashboard appearance with modern themes."
+msgstr ""
+
+#: wp-admin-themes.php:238
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: wp-admin-themes.php:254
+msgid "Select Theme"
+msgstr ""
+
+#: wp-admin-themes.php:278
+msgid "Primary Color"
+msgstr ""
+
+#: wp-admin-themes.php:291
+msgid "Reset to Default"
+msgstr ""
+
+#: wp-admin-themes.php:310
+msgid "The Enhanced theme provides a modern, refreshed admin experience."
+msgstr ""
+
+#: wp-admin-themes.php:324
+msgid "Enhanced Features"
+msgstr ""
+
+#: wp-admin-themes.php:340
+msgid "Save Settings"
+msgstr ""
+
+#: wp-admin-themes.php:343
+msgid "Your theme selection will be applied immediately after saving."
+msgstr ""
+
+#: wp-admin-themes.php:345
+msgid "Save Changes"
+msgstr ""
+
+#: wp-admin-themes.php:352
+msgid "Need Help?"
+msgstr ""
+
+#: wp-admin-themes.php:355
+msgid "The Enhanced theme is designed to work seamlessly with all WordPress features and most plugins."
+msgstr ""

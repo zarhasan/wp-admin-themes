@@ -1,0 +1,14 @@
+{
+    "free": {
+        "dreamauto": "WP Admin Themes",
+        "SLUG": "wp-admin-themes",
+        "PREFIX": "wp_admin_themes",
+        "VERSION": "0.0.1"
+    },
+    "pro": {
+        "dreamauto": "WP Admin Themes",
+        "SLUG": "wp-admin-themes",
+        "PREFIX": "wp_admin_themes",
+        "VERSION": "0.0.1"
+    }
+}

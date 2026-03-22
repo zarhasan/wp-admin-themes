@@ -3,7 +3,7 @@
  * Plugin Name: WP Admin Themes
  * Plugin URI: https://example.com/wp-admin-themes
  * Description: Allows selection of different themes for the WordPress admin dashboard with an Enhanced theme featuring modern UX improvements.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Developer
  * Author URI: https://example.com
  * License: GPL v2 or later
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'WP_ADMIN_THEMES_VERSION', '1.0.0' );
+define( 'WP_ADMIN_THEMES_VERSION', '1.1.0' );
 define( 'WP_ADMIN_THEMES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
 
@@ -23,30 +23,74 @@ class WP_Admin_Themes {
     private $themes = array();
     private $current_theme = 'default';
     private $primary_color = '#2271b1';
+    private $preset_colors = array();
     
     public function __construct() {
-        $this->themes = array(
-            'default' => array(
-                'name' => 'Default WordPress',
-                'description' => 'The classic WordPress admin appearance.'
-            ),
-            'enhanced' => array(
-                'name' => 'Enhanced',
-                'description' => 'Modern, UX-focused version with enhanced visual design.',
-                'path' => WP_ADMIN_THEMES_PATH . 'themes/enhanced/enhanced.css'
-            )
-        );
-        
-        $this->current_theme = get_option( 'wp_admin_theme', 'default' );
-        $this->primary_color = get_option( 'wp_admin_primary_color', '#2271b1' );
+        $this->load_options();
         
         add_action( 'init', array( $this, 'load_textdomain' ) );
+        add_action( 'init', array( $this, 'init_themes' ) );
+        add_action( 'init', array( $this, 'init_preset_colors' ) );
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ), 999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_theme_styles' ), 999 );
         add_filter( 'admin_body_class', array( $this, 'add_body_class' ) );
         
-        add_action( 'wp_ajax_reset_enhanced_theme_cache', array( $this, 'ajax_reset_cache' ) );
+        // AJAX handlers
+        add_action( 'wp_ajax_wpat_preview_theme', array( $this, 'ajax_preview_theme' ) );
+        add_action( 'wp_ajax_wpat_reset_settings', array( $this, 'ajax_reset_settings' ) );
+    }
+    
+    public function init_themes() {
+        $this->themes = array(
+            'default' => array(
+                'name'        => __( 'Default WordPress', 'wp-admin-themes' ),
+                'description' => __( 'The classic WordPress admin appearance with the familiar dark sidebar.', 'wp-admin-themes' ),
+                'icon'        => 'dashicons-wordpress',
+                'features'    => array(
+                    __( 'Classic WordPress styling', 'wp-admin-themes' ),
+                    __( 'Dark sidebar navigation', 'wp-admin-themes' ),
+                    __( 'Familiar user interface', 'wp-admin-themes' ),
+                    __( 'Standard WordPress experience', 'wp-admin-themes' ),
+                ),
+            ),
+            'enhanced' => array(
+                'name'        => __( 'Enhanced', 'wp-admin-themes' ),
+                'description' => __( 'Modern, UX-focused design with a light sidebar, improved spacing, and enhanced visual hierarchy.', 'wp-admin-themes' ),
+                'icon'        => 'dashicons-art',
+                'features'    => array(
+                    __( 'Modern light sidebar design', 'wp-admin-themes' ),
+                    __( 'Enhanced visual hierarchy', 'wp-admin-themes' ),
+                    __( 'Improved spacing & readability', 'wp-admin-themes' ),
+                    __( 'Subtle shadows & modern cards', 'wp-admin-themes' ),
+                    __( 'Customizable primary color', 'wp-admin-themes' ),
+                    __( 'Better focus states', 'wp-admin-themes' ),
+                ),
+            ),
+        );
+    }
+    
+    public function init_preset_colors() {
+        $this->preset_colors = array(
+            '#2271b1' => __( 'WordPress Blue', 'wp-admin-themes' ),
+            '#007017' => __( 'Forest Green', 'wp-admin-themes' ),
+            '#7c5bd4' => __( 'Royal Purple', 'wp-admin-themes' ),
+            '#d63638' => __( 'Coral Red', 'wp-admin-themes' ),
+            '#dba617' => __( 'Golden', 'wp-admin-themes' ),
+            '#00a32a' => __( 'Bright Green', 'wp-admin-themes' ),
+            '#1d2327' => __( 'Dark Slate', 'wp-admin-themes' ),
+            '#646970' => __( 'Slate Gray', 'wp-admin-themes' ),
+            '#e35b48' => __( 'Sunset Orange', 'wp-admin-themes' ),
+            '#0969da' => __( 'Ocean Blue', 'wp-admin-themes' ),
+            '#8250df' => __( 'Lavender', 'wp-admin-themes' ),
+            '#cf222e' => __( 'Cherry Red', 'wp-admin-themes' ),
+        );
+    }
+    
+    private function load_options() {
+        $this->current_theme = get_option( 'wp_admin_theme', 'default' );
+        $this->primary_color = get_option( 'wp_admin_primary_color', '#2271b1' );
     }
     
     public function load_textdomain() {
@@ -64,230 +108,70 @@ class WP_Admin_Themes {
     }
     
     public function register_settings() {
-        register_setting( 'wp_admin_themes_group', 'wp_admin_theme', array(
-            'type'              => 'string',
-            'sanitize_callback' => 'sanitize_key',
-            'default'           => 'default'
-        ) );
-        
-        register_setting( 'wp_admin_themes_group', 'wp_admin_primary_color', array(
-            'type'              => 'string',
-            'sanitize_callback' => 'sanitize_hex_color',
-            'default'           => '#2271b1'
-        ) );
-        
-        add_settings_section(
-            'wp_admin_themes_main',
-            __( 'Theme Selection', 'wp-admin-themes' ),
-            array( $this, 'render_section' ),
-            'wp-admin-themes'
-        );
-        
-        add_settings_field(
-            'wp_admin_theme',
-            __( 'Active Theme', 'wp-admin-themes' ),
-            array( $this, 'render_theme_selector' ),
-            'wp-admin-themes',
-            'wp_admin_themes_main'
-        );
-        
-        add_settings_field(
-            'wp_admin_primary_color',
-            __( 'Primary Color', 'wp-admin-themes' ),
-            array( $this, 'render_color_picker' ),
-            'wp-admin-themes',
-            'wp_admin_themes_main'
-        );
-    }
-    
-    public function render_section() {
-        echo '<p>' . esc_html__( 'Select an admin theme and customize its appearance.', 'wp-admin-themes' ) . '</p>';
-    }
-    
-    public function render_theme_selector() {
-        $current = $this->current_theme;
-        
-        $translated_themes = array(
-            'default' => array(
-                'name' => __( 'Default WordPress', 'wp-admin-themes' ),
-                'description' => __( 'The classic WordPress admin appearance.', 'wp-admin-themes' )
-            ),
-            'enhanced' => array(
-                'name' => __( 'Enhanced', 'wp-admin-themes' ),
-                'description' => __( 'Modern, UX-focused version with enhanced visual design.', 'wp-admin-themes' )
+        register_setting( 
+            'wp_admin_themes_group', 
+            'wp_admin_theme', 
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => array( $this, 'sanitize_theme' ),
+                'default'           => 'default',
             )
         );
         
-        echo '<div class="wp-admin-theme-selector">';
-        foreach ( $this->themes as $slug => $theme ) {
-            $checked = checked( $current, $slug, false );
-            $name = isset( $translated_themes[ $slug ]['name'] ) ? $translated_themes[ $slug ]['name'] : $theme['name'];
-            $description = isset( $translated_themes[ $slug ]['description'] ) ? $translated_themes[ $slug ]['description'] : $theme['description'];
-            echo '<div class="wp-admin-theme-option">';
-            echo '<label>';
-            echo '<input type="radio" name="wp_admin_theme" value="' . esc_attr( $slug ) . '" ' . $checked . ' />';
-            echo '<span class="theme-name">' . esc_html( $name ) . '</span>';
-            echo '<span class="theme-description">' . esc_html( $description ) . '</span>';
-            echo '</label>';
-            echo '</div>';
-        }
-        echo '</div>';
-    }
-    
-    public function render_color_picker() {
-        $color = $this->primary_color;
-        $preset_colors = array(
-            '#2271b1' => __( 'WordPress Blue', 'wp-admin-themes' ),
-            '#007017' => __( 'Forest Green', 'wp-admin-themes' ),
-            '#7c5bd4' => __( 'Purple', 'wp-admin-themes' ),
-            '#d63638' => __( 'Red', 'wp-admin-themes' ),
-            '#dba617' => __( 'Golden', 'wp-admin-themes' ),
-            '#00a32a' => __( 'Bright Green', 'wp-admin-themes' ),
-            '#1d2327' => __( 'Dark Slate', 'wp-admin-themes' ),
-            '#646970' => __( 'Gray', 'wp-admin-themes' )
+        register_setting( 
+            'wp_admin_themes_group', 
+            'wp_admin_primary_color', 
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'default'           => '#2271b1',
+            )
         );
-        
-        echo '<div class="wp-admin-color-picker-wrapper">';
-        echo '<input type="text" name="wp_admin_primary_color" value="' . esc_attr( $color ) . '" class="wp-admin-color-picker" data-default-color="#2271b1" />';
-        echo '<div class="color-presets">';
-        foreach ( $preset_colors as $hex => $label ) {
-            echo '<button type="button" class="color-preset" data-color="' . esc_attr( $hex ) . '" style="background-color:' . esc_attr( $hex ) . '" title="' . esc_attr( $label ) . '"></button>';
-        }
-        echo '</div>';
-        echo '<p class="description">' . esc_html__( 'Choose a primary color for the Enhanced theme.', 'wp-admin-themes' ) . '</p>';
-        echo '</div>';
     }
     
-    public function render_settings_page() {
-        if ( ! current_user_can( 'manage_options' ) ) {
+    public function sanitize_theme( $value ) {
+        $allowed = array_keys( $this->themes );
+        return in_array( $value, $allowed, true ) ? $value : 'default';
+    }
+    
+    public function enqueue_admin_assets( $hook ) {
+        if ( 'settings_page_wp-admin-themes' !== $hook ) {
             return;
         }
-        ?>
-        <div class="wrap">
-            <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields( 'wp_admin_themes_group' );
-                do_settings_sections( 'wp-admin-themes' );
-                submit_button();
-                ?>
-            </form>
-            
-            <hr>
-            
-            <h2><?php esc_html_e( 'Theme Preview', 'wp-admin-themes' ); ?></h2>
-            <p><?php esc_html_e( 'The Enhanced theme applies modern UX improvements to your WordPress admin dashboard.', 'wp-admin-themes' ); ?></p>
-            
-            <h3><?php esc_html_e( 'Enhanced Theme Features', 'wp-admin-themes' ); ?></h3>
-            <ul>
-                <li><?php esc_html_e( 'Softer, more refined color palette', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Improved spacing and visual hierarchy', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Enhanced focus states for accessibility', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Modern card designs with subtle shadows', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Improved table readability', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Smoother transitions and animations', 'wp-admin-themes' ); ?></li>
-                <li><?php esc_html_e( 'Customizable primary color', 'wp-admin-themes' ); ?></li>
-            </ul>
-        </div>
         
-        <style>
-        .wp-admin-theme-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 15px 0;
-        }
-        .wp-admin-theme-option {
-            flex: 1;
-            min-width: 200px;
-            max-width: 300px;
-        }
-        .wp-admin-theme-option label {
-            display: block;
-            padding: 15px;
-            border: 2px solid #c3c4c7;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .wp-admin-theme-option label:hover {
-            border-color: #2271b1;
-            background: #f0f6fc;
-        }
-        .wp-admin-theme-option input:checked + label {
-            border-color: #2271b1;
-            background: #f0f6fc;
-            box-shadow: 0 0 0 1px #2271b1;
-        }
-        .wp-admin-theme-option .theme-name {
-            display: block;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .wp-admin-theme-option .theme-description {
-            display: block;
-            font-size: 12px;
-            color: #646970;
-        }
-        .wp-admin-color-picker-wrapper {
-            max-width: 300px;
-        }
-        .wp-admin-color-picker {
-            width: 100px;
-            height: 40px;
-            padding: 2px;
-            border: 1px solid #8c8f94;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .color-presets {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .color-preset {
-            width: 28px;
-            height: 28px;
-            border: 2px solid transparent;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.15s ease, border-color 0.15s ease;
-        }
-        .color-preset:hover {
-            transform: scale(1.15);
-            border-color: rgba(0,0,0,0.2);
-        }
-        .color-preset.selected {
-            border-color: #3c434a;
-        }
-        </style>
+        // Enqueue WordPress color picker
+        wp_enqueue_style( 'wp-color-picker' );
+        wp_enqueue_script( 'wp-color-picker' );
         
-        <script>
-        jQuery(document).ready(function($) {
-            $('.color-preset').on('click', function() {
-                var color = $(this).data('color');
-                $('input[name="wp_admin_primary_color"]').val(color).trigger('change');
-                $('.color-preset').removeClass('selected');
-                $(this).addClass('selected');
-            });
-            
-            $('input[name="wp_admin_primary_color"]').on('input', function() {
-                var color = $(this).val();
-                $('.color-preset').each(function() {
-                    if ($(this).data('color') === color) {
-                        $(this).addClass('selected');
-                    } else {
-                        $(this).removeClass('selected');
-                    }
-                });
-            });
-        });
-        </script>
-        <?php
+        // Enqueue settings page styles
+        wp_enqueue_style(
+            'wp-admin-themes-settings',
+            WP_ADMIN_THEMES_URL . 'css/settings.css',
+            array(),
+            WP_ADMIN_THEMES_VERSION
+        );
+        
+        // Enqueue settings page JavaScript
+        wp_enqueue_script(
+            'wp-admin-themes-settings',
+            WP_ADMIN_THEMES_URL . 'js/settings.js',
+            array( 'jquery', 'jquery-ui-tooltip', 'wp-color-picker' ),
+            WP_ADMIN_THEMES_VERSION,
+            true
+        );
+        
+        // Localize script
+        wp_localize_script( 
+            'wp-admin-themes-settings',
+            'wpatData',
+            array(
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'nonce'   => wp_create_nonce( 'wp-admin-themes-nonce' ),
+            )
+        );
     }
     
-    public function enqueue_theme_styles( $hook ) {
+    public function enqueue_theme_styles() {
         if ( $this->current_theme !== 'enhanced' ) {
             return;
         }
@@ -295,13 +179,11 @@ class WP_Admin_Themes {
         $enhanced_css_path = WP_ADMIN_THEMES_PATH . 'themes/enhanced/enhanced.css';
         
         if ( file_exists( $enhanced_css_path ) ) {
-            $version = WP_ADMIN_THEMES_VERSION;
-            
             wp_enqueue_style(
                 'wp-admin-theme-enhanced',
                 WP_ADMIN_THEMES_URL . 'themes/enhanced/enhanced.css',
                 array(),
-                $version
+                WP_ADMIN_THEMES_VERSION
             );
             
             $custom_css = $this->generate_custom_css();
@@ -312,19 +194,225 @@ class WP_Admin_Themes {
     private function generate_custom_css() {
         $color = $this->primary_color;
         $hover = $this->adjust_color( $color, -15 );
-        $light = $this->adjust_color( $color, 40 );
-        $rgb = $this->hex_to_rgb_array( $color );
+        $rgb = $this->hex_to_rgb( $color );
         
-        $custom_css = "
+        $css = sprintf( '
             :root {
-                --wp-admin-theme-primary: {$color};
-                --wp-admin-theme-primary-hover: {$hover};
-                --wp-admin-theme-primary-light: {$light};
-                --wp-admin-theme-color-rgb: {$rgb['r']}, {$rgb['g']}, {$rgb['b']};
+                --wp-admin-theme-primary: %1$s;
+                --wp-admin-theme-color: %1$s;
+                --wp-admin-theme-color-rgb: %2$d, %3$d, %4$d;
+                --wp-admin-theme-color-hover: %5$s;
             }
-        ";
+        ', esc_attr( $color ), $rgb['r'], $rgb['g'], $rgb['b'], esc_attr( $hover ) );
         
-        return $custom_css;
+        return $css;
+    }
+    
+    public function render_settings_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        
+        // Handle form submission
+        if ( isset( $_POST['wp_admin_themes_submit'] ) && check_admin_referer( 'wp_admin_themes_action', 'wp_admin_themes_nonce' ) ) {
+            $this->save_settings();
+        }
+        
+        // Get current values
+        $current_theme = $this->current_theme;
+        $current_color = $this->primary_color;
+        
+        // Check for success message
+        $saved = isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'];
+        ?>
+        <div class="wrap wpat-settings-wrapper">
+            
+            <div class="wpat-settings-header">
+                <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+                <p><?php esc_html_e( 'Customize your WordPress admin dashboard appearance with modern themes.', 'wp-admin-themes' ); ?></p>
+            </div>
+            
+            <?php if ( $saved ) : ?>
+                <div class="wpat-notice wpat-notice-success">
+                    <span class="dashicons dashicons-yes-alt"></span>
+                    <span><?php esc_html_e( 'Settings saved successfully!', 'wp-admin-themes' ); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <form method="post" action="" id="wpat-settings-form">
+                <?php wp_nonce_field( 'wp_admin_themes_action', 'wp_admin_themes_nonce' ); ?>
+                
+                <div class="wpat-settings-grid">
+                    
+                    <!-- Main Content -->
+                    <div class="wpat-main-content">
+                        
+                        <!-- Theme Selection -->
+                        <div class="wpat-card">
+                            <div class="wpat-card-header">
+                                <span class="dashicons dashicons-layout"></span>
+                                <h2><?php esc_html_e( 'Select Theme', 'wp-admin-themes' ); ?></h2>
+                            </div>
+                            <div class="wpat-card-body">
+                                <div class="wpat-theme-options">
+                                    <?php foreach ( $this->themes as $slug => $theme ) : ?>
+                                        <div class="wpat-theme-option">
+                                            <input type="radio" 
+                                                   name="wp_admin_theme" 
+                                                   id="theme-<?php echo esc_attr( $slug ); ?>" 
+                                                   value="<?php echo esc_attr( $slug ); ?>" 
+                                                   <?php checked( $current_theme, $slug ); ?>>
+                                            <label for="theme-<?php echo esc_attr( $slug ); ?>" class="wpat-theme-card">
+                                                <div class="wpat-theme-preview <?php echo esc_attr( $slug ); ?>">
+                                                    <span class="dashicons <?php echo esc_attr( $theme['icon'] ); ?>"></span>
+                                                </div>
+                                                <div class="wpat-theme-name"><?php echo esc_html( $theme['name'] ); ?></div>
+                                                <div class="wpat-theme-description"><?php echo esc_html( $theme['description'] ); ?></div>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                
+                                <!-- Color Picker (only for enhanced theme) -->
+                                <div class="wpat-color-section" id="color-section" style="display: <?php echo 'enhanced' === $current_theme ? 'block' : 'none'; ?>;">
+                                    <h3><?php esc_html_e( 'Primary Color', 'wp-admin-themes' ); ?></h3>
+                                    <div class="wpat-color-picker-wrapper">
+                                        <div class="wpat-color-main">
+                                            <div class="wpat-color-input-wrapper">
+                                                <div class="wpat-color-preview" style="background-color: <?php echo esc_attr( $current_color ); ?>"></div>
+                                                <input type="text" 
+                                                       name="wp_admin_primary_color" 
+                                                       id="wpat-primary-color" 
+                                                       value="<?php echo esc_attr( $current_color ); ?>" 
+                                                       class="wpat-color-input"
+                                                       data-default-color="#2271b1">
+                                            </div>
+                                            <button type="button" class="button" id="wpat-reset-colors">
+                                                <?php esc_html_e( 'Reset to Default', 'wp-admin-themes' ); ?>
+                                            </button>
+                                        </div>
+                                        <div class="wpat-color-presets">
+                                            <?php foreach ( $this->preset_colors as $color => $label ) : ?>
+                                                <button type="button" 
+                                                        class="wpat-color-preset <?php echo $current_color === $color ? 'active' : ''; ?>" 
+                                                        style="background-color: <?php echo esc_attr( $color ); ?>" 
+                                                        data-color="<?php echo esc_attr( $color ); ?>"
+                                                        data-label="<?php echo esc_attr( $label ); ?>"
+                                                        title="<?php echo esc_attr( $label ); ?>">
+                                                </button>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wpat-card-footer">
+                                <p class="description">
+                                    <?php esc_html_e( 'The Enhanced theme provides a modern, refreshed admin experience.', 'wp-admin-themes' ); ?>
+                                </p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="wpat-sidebar">
+                        
+                        <!-- Theme Features -->
+                        <div class="wpat-sidebar-card">
+                            <h3>
+                                <span class="dashicons dashicons-star-filled"></span>
+                                <?php esc_html_e( 'Enhanced Features', 'wp-admin-themes' ); ?>
+                            </h3>
+                            <ul class="wpat-feature-list">
+                                <?php foreach ( $this->themes['enhanced']['features'] as $feature ) : ?>
+                                    <li>
+                                        <span class="dashicons dashicons-yes"></span>
+                                        <?php echo esc_html( $feature ); ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                        
+                        <!-- Save Button -->
+                        <div class="wpat-sidebar-card">
+                            <h3>
+                                <span class="dashicons dashicons-saved"></span>
+                                <?php esc_html_e( 'Save Settings', 'wp-admin-themes' ); ?>
+                            </h3>
+                            <p class="description" style="margin-bottom: 16px;">
+                                <?php esc_html_e( 'Your theme selection will be applied immediately after saving.', 'wp-admin-themes' ); ?>
+                            </p>
+                            <?php submit_button( __( 'Save Changes', 'wp-admin-themes' ), 'primary', 'wp_admin_themes_submit', false ); ?>
+                        </div>
+                        
+                        <!-- Help -->
+                        <div class="wpat-sidebar-card">
+                            <h3>
+                                <span class="dashicons dashicons-editor-help"></span>
+                                <?php esc_html_e( 'Need Help?', 'wp-admin-themes' ); ?>
+                            </h3>
+                            <p class="description">
+                                <?php esc_html_e( 'The Enhanced theme is designed to work seamlessly with all WordPress features and most plugins.', 'wp-admin-themes' ); ?>
+                            </p>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </form>
+        </div>
+        <?php
+    }
+    
+    private function save_settings() {
+        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'default';
+        $color = isset( $_POST['wp_admin_primary_color'] ) ? sanitize_hex_color( $_POST['wp_admin_primary_color'] ) : '#2271b1';
+        
+        // Validate theme
+        if ( ! array_key_exists( $theme, $this->themes ) ) {
+            $theme = 'default';
+        }
+        
+        // Save options
+        update_option( 'wp_admin_theme', $theme );
+        
+        if ( 'enhanced' === $theme ) {
+            update_option( 'wp_admin_primary_color', $color );
+        }
+        
+        // Redirect with success message
+        wp_safe_redirect( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+        exit;
+    }
+    
+    public function add_body_class( $classes ) {
+        if ( $this->current_theme !== 'default' ) {
+            $classes .= ' wp-admin-theme-' . esc_attr( $this->current_theme );
+        }
+        return $classes;
+    }
+    
+    public function ajax_preview_theme() {
+        check_ajax_referer( 'wp-admin-themes-nonce', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Unauthorized' );
+        }
+        
+        wp_send_json_success( array( 'message' => 'Preview loaded' ) );
+    }
+    
+    public function ajax_reset_settings() {
+        check_ajax_referer( 'wp-admin-themes-nonce', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Unauthorized' );
+        }
+        
+        update_option( 'wp_admin_theme', 'default' );
+        update_option( 'wp_admin_primary_color', '#2271b1' );
+        
+        wp_send_json_success( array( 'message' => 'Settings reset' ) );
     }
     
     private function adjust_color( $hex, $percent ) {
@@ -342,40 +430,22 @@ class WP_Admin_Themes {
         return sprintf( '#%02x%02x%02x', $rgb['r'], $rgb['g'], $rgb['b'] );
     }
     
-    private function hex_to_rgb( $hex, $alpha = 1 ) {
-        $rgb = $this->hex_to_rgb_array( $hex );
-        return sprintf( 'rgba(%d, %d, %d, %s)', $rgb['r'], $rgb['g'], $rgb['b'], $alpha );
+    private function hex_to_rgb( $hex ) {
+        return $this->hex_to_rgb_array( $hex );
     }
     
     private function hex_to_rgb_array( $hex ) {
         $hex = ltrim( $hex, '#' );
         
         if ( strlen( $hex ) === 3 ) {
-            $hex = $hex . $hex;
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
         }
         
         return array(
             'r' => hexdec( substr( $hex, 0, 2 ) ),
             'g' => hexdec( substr( $hex, 2, 2 ) ),
-            'b' => hexdec( substr( $hex, 4, 2 ) )
+            'b' => hexdec( substr( $hex, 4, 2 ) ),
         );
-    }
-    
-    public function add_body_class( $classes ) {
-        if ( $this->current_theme !== 'default' ) {
-            $classes .= ' wp-admin-theme-' . esc_attr( $this->current_theme );
-        }
-        return $classes;
-    }
-    
-    public function ajax_reset_cache() {
-        check_ajax_referer( 'wp_admin_themes_reset', 'nonce' );
-        
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error();
-        }
-        
-        wp_send_json_success();
     }
     
     public static function activate() {
@@ -384,12 +454,18 @@ class WP_Admin_Themes {
     }
     
     public static function deactivate() {
+        // Don't delete options on deactivation, only on uninstall
+    }
+    
+    public static function uninstall() {
         delete_option( 'wp_admin_theme' );
         delete_option( 'wp_admin_primary_color' );
     }
 }
 
+// Register hooks
 register_activation_hook( __FILE__, array( 'WP_Admin_Themes', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'WP_Admin_Themes', 'deactivate' ) );
 
+// Initialize plugin
 new WP_Admin_Themes();

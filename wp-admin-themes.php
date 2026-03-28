@@ -21,7 +21,7 @@ define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
 class WP_Admin_Themes {
     
     private $themes = array();
-    private $current_theme = 'classic';
+    private $current_theme = 'default';
     private $primary_color = '#2271b1';
     private $preset_colors = array();
     
@@ -45,21 +45,30 @@ class WP_Admin_Themes {
     
     public function init_themes() {
         $this->themes = array(
+            'default' => array(
+                'name'        => __( 'Default', 'wp-admin-themes' ),
+                'description' => __( 'Use default WordPress admin styles from core. No customization applied.', 'wp-admin-themes' ),
+                'icon'        => 'dashicons-wordpress',
+                'features'    => array(
+                    __( 'Standard WordPress experience', 'wp-admin-themes' ),
+                    __( 'Core WordPress styles', 'wp-admin-themes' ),
+                    __( 'No modifications', 'wp-admin-themes' ),
+                ),
+            ),
             'classic' => array(
                 'name'        => __( 'Classic', 'wp-admin-themes' ),
                 'description' => __( 'Classic WordPress admin appearance loaded from plugin with the familiar dark sidebar.', 'wp-admin-themes' ),
-                'icon'        => 'dashicons-wordpress',
+                'icon'        => 'dashicons-admin-appearance',
                 'features'    => array(
                     __( 'Classic WordPress styling', 'wp-admin-themes' ),
                     __( 'Dark sidebar navigation', 'wp-admin-themes' ),
                     __( 'Familiar user interface', 'wp-admin-themes' ),
-                    __( 'Standard WordPress experience', 'wp-admin-themes' ),
                     __( 'Styles loaded from plugin', 'wp-admin-themes' ),
                 ),
             ),
-            'enhanced' => array(
-                'name'        => __( 'Enhanced', 'wp-admin-themes' ),
-                'description' => __( 'Modern, UX-focused design with a light sidebar, improved spacing, and enhanced visual hierarchy.', 'wp-admin-themes' ),
+            'modern' => array(
+                'name'        => __( 'Modern', 'wp-admin-themes' ),
+                'description' => __( 'Modern, UX-focused design with a light sidebar, improved spacing, and modern visual hierarchy.', 'wp-admin-themes' ),
                 'icon'        => 'dashicons-art',
                 'features'    => array(
                     __( 'Modern light sidebar design', 'wp-admin-themes' ),
@@ -91,7 +100,7 @@ class WP_Admin_Themes {
     }
     
     private function load_options() {
-        $this->current_theme = get_option( 'wp_admin_theme', 'classic' );
+        $this->current_theme = get_option( 'wp_admin_theme', 'default' );
         $this->primary_color = get_option( 'wp_admin_primary_color', '#2271b1' );
     }
     
@@ -116,7 +125,7 @@ class WP_Admin_Themes {
             array(
                 'type'              => 'string',
                 'sanitize_callback' => array( $this, 'sanitize_theme' ),
-                'default'           => 'classic',
+                'default'           => 'default',
             )
         );
         
@@ -133,7 +142,7 @@ class WP_Admin_Themes {
     
     public function sanitize_theme( $value ) {
         $allowed = array_keys( $this->themes );
-        return in_array( $value, $allowed, true ) ? $value : 'classic';
+        return in_array( $value, $allowed, true ) ? $value : 'default';
     }
     
     public function handle_form_submit() {
@@ -149,16 +158,16 @@ class WP_Admin_Themes {
             return;
         }
         
-        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'classic';
+        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'default';
         $color = isset( $_POST['wp_admin_primary_color'] ) ? sanitize_hex_color( $_POST['wp_admin_primary_color'] ) : '#2271b1';
         
         if ( ! array_key_exists( $theme, $this->themes ) ) {
-            $theme = 'classic';
+            $theme = 'default';
         }
         
         update_option( 'wp_admin_theme', $theme );
         
-        if ( 'enhanced' === $theme ) {
+        if ( 'modern' === $theme ) {
             update_option( 'wp_admin_primary_color', $color );
         }
         
@@ -210,22 +219,20 @@ class WP_Admin_Themes {
             return;
         }
         
-        if ( $this->current_theme !== 'enhanced' ) {
-            return;
-        }
-        
-        $enhanced_css_path = WP_ADMIN_THEMES_PATH . 'themes/enhanced/enhanced.css';
-        
-        if ( file_exists( $enhanced_css_path ) ) {
-            wp_enqueue_style(
-                'wp-admin-theme-enhanced',
-                WP_ADMIN_THEMES_URL . 'themes/enhanced/enhanced.css',
-                array(),
-                WP_ADMIN_THEMES_VERSION
-            );
+        if ( $this->current_theme === 'modern' ) {
+            $modern_css_path = WP_ADMIN_THEMES_PATH . 'themes/modern/modern.css';
             
-            $custom_css = $this->generate_custom_css();
-            wp_add_inline_style( 'wp-admin-theme-enhanced', $custom_css );
+            if ( file_exists( $modern_css_path ) ) {
+                wp_enqueue_style(
+                    'wp-admin-theme-modern',
+                    WP_ADMIN_THEMES_URL . 'themes/modern/modern.css',
+                    array( 'wp-admin', 'common', 'forms', 'admin-menu', 'list-tables' ),
+                    WP_ADMIN_THEMES_VERSION
+                );
+                
+                $custom_css = $this->generate_custom_css();
+                wp_add_inline_style( 'wp-admin-theme-modern', $custom_css );
+            }
         }
     }
     
@@ -340,8 +347,8 @@ class WP_Admin_Themes {
                                     <?php endforeach; ?>
                                 </div>
                                 
-                                <!-- Color Picker (only for enhanced theme) -->
-                                <div class="wpat-color-section" id="color-section" style="display: <?php echo 'enhanced' === $current_theme ? 'block' : 'none'; ?>;">
+                                <!-- Color Picker (only for modern theme) -->
+                                <div class="wpat-color-section" id="color-section" style="display: <?php echo 'modern' === $current_theme ? 'block' : 'none'; ?>;">
                                     <h3><?php esc_html_e( 'Primary Color', 'wp-admin-themes' ); ?></h3>
                                     <div class="wpat-color-picker-wrapper">
                                         <div class="wpat-color-main">
@@ -374,7 +381,7 @@ class WP_Admin_Themes {
                             </div>
                             <div class="wpat-card-footer">
                                 <p class="description">
-                                    <?php esc_html_e( 'The Enhanced theme provides a modern, refreshed admin experience.', 'wp-admin-themes' ); ?>
+                                    <?php echo esc_html( $this->themes[ $current_theme ]['description'] ); ?>
                                 </p>
                             </div>
                         </div>
@@ -388,10 +395,10 @@ class WP_Admin_Themes {
                         <div class="wpat-sidebar-card">
                             <h3>
                                 <span class="dashicons dashicons-star-filled"></span>
-                                <?php esc_html_e( 'Enhanced Features', 'wp-admin-themes' ); ?>
+                                <?php echo esc_html( $this->themes[ $current_theme ]['name'] . ' ' . __( 'Features', 'wp-admin-themes' ) ); ?>
                             </h3>
                             <ul class="wpat-feature-list">
-                                <?php foreach ( $this->themes['enhanced']['features'] as $feature ) : ?>
+                                <?php foreach ( $this->themes[ $current_theme ]['features'] as $feature ) : ?>
                                     <li>
                                         <span class="dashicons dashicons-yes"></span>
                                         <?php echo esc_html( $feature ); ?>
@@ -432,8 +439,8 @@ class WP_Admin_Themes {
     }
     
     public function add_body_class( $classes ) {
-        if ( $this->current_theme === 'enhanced' ) {
-            $classes .= ' wp-admin-theme-enhanced';
+        if ( $this->current_theme === 'modern' ) {
+            $classes .= ' wp-admin-theme-modern';
         }
         return $classes;
     }
@@ -455,7 +462,7 @@ class WP_Admin_Themes {
             wp_send_json_error( 'Unauthorized' );
         }
         
-        update_option( 'wp_admin_theme', 'classic' );
+        update_option( 'wp_admin_theme', 'default' );
         update_option( 'wp_admin_primary_color', '#2271b1' );
         
         wp_send_json_success( array( 'message' => 'Settings reset' ) );
@@ -495,7 +502,7 @@ class WP_Admin_Themes {
     }
     
     public static function activate() {
-        add_option( 'wp_admin_theme', 'classic' );
+        add_option( 'wp_admin_theme', 'default' );
         add_option( 'wp_admin_primary_color', '#2271b1' );
     }
     

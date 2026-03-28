@@ -118,7 +118,7 @@
             $(`.wpat-theme-option input[value="${theme}"]`).siblings('.wpat-theme-card').addClass('selected');
             
             // Show/hide color section
-            if (theme === 'enhanced') {
+            if (theme === 'modern') {
                 $('#color-section').slideDown(200);
             } else {
                 $('#color-section').slideUp(200);

@@ -66,6 +66,19 @@ class WP_Admin_Themes {
                     __( 'Styles loaded from plugin', 'wp-admin-themes' ),
                 ),
             ),
+            'enhanced' => array(
+                'name'        => __( 'Enhanced', 'wp-admin-themes' ),
+                'description' => __( 'Classic WordPress aesthetic with subtle UX enhancements: smoother transitions, improved focus states, and refined hover effects.', 'wp-admin-themes' ),
+                'icon'        => 'dashicons-star-filled',
+                'features'    => array(
+                    __( 'Classic WordPress aesthetic preserved', 'wp-admin-themes' ),
+                    __( 'Smoother transitions (0.15s)', 'wp-admin-themes' ),
+                    __( 'Enhanced focus visibility', 'wp-admin-themes' ),
+                    __( 'Subtle hover lift effects', 'wp-admin-themes' ),
+                    __( 'Improved button interactions', 'wp-admin-themes' ),
+                    __( 'Better menu navigation', 'wp-admin-themes' ),
+                ),
+            ),
             'modern' => array(
                 'name'        => __( 'Modern', 'wp-admin-themes' ),
                 'description' => __( 'Modern, UX-focused design with a light sidebar, improved spacing, and modern visual hierarchy.', 'wp-admin-themes' ),
@@ -219,6 +232,12 @@ class WP_Admin_Themes {
             return;
         }
         
+        if ( $this->current_theme === 'enhanced' ) {
+            $this->dequeue_core_styles();
+            $this->enqueue_enhanced_styles();
+            return;
+        }
+        
         if ( $this->current_theme === 'modern' ) {
             $modern_css_path = WP_ADMIN_THEMES_PATH . 'themes/modern/modern.css';
             
@@ -268,6 +287,24 @@ class WP_Admin_Themes {
         wp_enqueue_style( 'nav-menus-classic', $base_url . 'nav-menus.css', array(), WP_ADMIN_THEMES_VERSION );
         wp_enqueue_style( 'about-classic', $base_url . 'about.css', array(), WP_ADMIN_THEMES_VERSION );
         wp_enqueue_style( 'site-health-classic', $base_url . 'site-health.css', array(), WP_ADMIN_THEMES_VERSION );
+    }
+    
+    private function enqueue_enhanced_styles() {
+        $base_url = WP_ADMIN_THEMES_URL . 'themes/enhanced/';
+        
+        wp_enqueue_style( 'wp-admin-enhanced', $base_url . 'wp-admin.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'common-enhanced', $base_url . 'common.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'forms-enhanced', $base_url . 'forms.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'admin-menu-enhanced', $base_url . 'admin-menu.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'list-tables-enhanced', $base_url . 'list-tables.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'dashboard-enhanced', $base_url . 'dashboard.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'edit-enhanced', $base_url . 'edit.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'media-enhanced', $base_url . 'media.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'themes-enhanced', $base_url . 'themes.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'widgets-enhanced', $base_url . 'widgets.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'nav-menus-enhanced', $base_url . 'nav-menus.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'about-enhanced', $base_url . 'about.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'site-health-enhanced', $base_url . 'site-health.css', array(), WP_ADMIN_THEMES_VERSION );
     }
     
     private function generate_custom_css() {
@@ -441,6 +478,9 @@ class WP_Admin_Themes {
     public function add_body_class( $classes ) {
         if ( $this->current_theme === 'modern' ) {
             $classes .= ' wp-admin-theme-modern';
+        }
+        if ( $this->current_theme === 'enhanced' ) {
+            $classes .= ' wp-admin-theme-enhanced';
         }
         return $classes;
     }

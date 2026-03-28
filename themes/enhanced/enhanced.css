@@ -543,7 +543,7 @@
    ========================================================================== */
 
 .wp-admin-theme-enhanced #wpcontent {
-    padding-left: 24px;
+    padding-left: 44px;
     background: var(--wp-admin-theme-bg);
     margin-left: 200px;
 }

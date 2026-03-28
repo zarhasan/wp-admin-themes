@@ -32,6 +32,7 @@ class WP_Admin_Themes {
         add_action( 'init', array( $this, 'init_themes' ) );
         add_action( 'init', array( $this, 'init_preset_colors' ) );
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+        add_action( 'admin_init', array( $this, 'handle_form_submit' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ), 999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_theme_styles' ), 999 );
@@ -134,6 +135,36 @@ class WP_Admin_Themes {
         return in_array( $value, $allowed, true ) ? $value : 'default';
     }
     
+    public function handle_form_submit() {
+        if ( ! isset( $_POST['wp_admin_themes_submit'] ) ) {
+            return;
+        }
+        
+        if ( ! check_admin_referer( 'wp_admin_themes_action', 'wp_admin_themes_nonce' ) ) {
+            return;
+        }
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        
+        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'default';
+        $color = isset( $_POST['wp_admin_primary_color'] ) ? sanitize_hex_color( $_POST['wp_admin_primary_color'] ) : '#2271b1';
+        
+        if ( ! array_key_exists( $theme, $this->themes ) ) {
+            $theme = 'default';
+        }
+        
+        update_option( 'wp_admin_theme', $theme );
+        
+        if ( 'enhanced' === $theme ) {
+            update_option( 'wp_admin_primary_color', $color );
+        }
+        
+        wp_safe_redirect( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+        exit;
+    }
+    
     public function enqueue_admin_assets( $hook ) {
         if ( 'settings_page_wp-admin-themes' !== $hook ) {
             return;
@@ -211,11 +242,6 @@ class WP_Admin_Themes {
     public function render_settings_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
-        }
-        
-        // Handle form submission
-        if ( isset( $_POST['wp_admin_themes_submit'] ) && check_admin_referer( 'wp_admin_themes_action', 'wp_admin_themes_nonce' ) ) {
-            $this->save_settings();
         }
         
         // Get current values
@@ -362,27 +388,6 @@ class WP_Admin_Themes {
             </form>
         </div>
         <?php
-    }
-    
-    private function save_settings() {
-        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'default';
-        $color = isset( $_POST['wp_admin_primary_color'] ) ? sanitize_hex_color( $_POST['wp_admin_primary_color'] ) : '#2271b1';
-        
-        // Validate theme
-        if ( ! array_key_exists( $theme, $this->themes ) ) {
-            $theme = 'default';
-        }
-        
-        // Save options
-        update_option( 'wp_admin_theme', $theme );
-        
-        if ( 'enhanced' === $theme ) {
-            update_option( 'wp_admin_primary_color', $color );
-        }
-        
-        // Redirect with success message
-        wp_safe_redirect( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
-        exit;
     }
     
     public function add_body_class( $classes ) {

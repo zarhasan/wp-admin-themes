@@ -21,7 +21,7 @@ define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
 class WP_Admin_Themes {
     
     private $themes = array();
-    private $current_theme = 'default';
+    private $current_theme = 'classic';
     private $primary_color = '#2271b1';
     private $preset_colors = array();
     
@@ -45,15 +45,16 @@ class WP_Admin_Themes {
     
     public function init_themes() {
         $this->themes = array(
-            'default' => array(
-                'name'        => __( 'Default WordPress', 'wp-admin-themes' ),
-                'description' => __( 'The classic WordPress admin appearance with the familiar dark sidebar.', 'wp-admin-themes' ),
+            'classic' => array(
+                'name'        => __( 'Classic', 'wp-admin-themes' ),
+                'description' => __( 'Classic WordPress admin appearance loaded from plugin with the familiar dark sidebar.', 'wp-admin-themes' ),
                 'icon'        => 'dashicons-wordpress',
                 'features'    => array(
                     __( 'Classic WordPress styling', 'wp-admin-themes' ),
                     __( 'Dark sidebar navigation', 'wp-admin-themes' ),
                     __( 'Familiar user interface', 'wp-admin-themes' ),
                     __( 'Standard WordPress experience', 'wp-admin-themes' ),
+                    __( 'Styles loaded from plugin', 'wp-admin-themes' ),
                 ),
             ),
             'enhanced' => array(
@@ -90,7 +91,7 @@ class WP_Admin_Themes {
     }
     
     private function load_options() {
-        $this->current_theme = get_option( 'wp_admin_theme', 'default' );
+        $this->current_theme = get_option( 'wp_admin_theme', 'classic' );
         $this->primary_color = get_option( 'wp_admin_primary_color', '#2271b1' );
     }
     
@@ -115,7 +116,7 @@ class WP_Admin_Themes {
             array(
                 'type'              => 'string',
                 'sanitize_callback' => array( $this, 'sanitize_theme' ),
-                'default'           => 'default',
+                'default'           => 'classic',
             )
         );
         
@@ -132,7 +133,7 @@ class WP_Admin_Themes {
     
     public function sanitize_theme( $value ) {
         $allowed = array_keys( $this->themes );
-        return in_array( $value, $allowed, true ) ? $value : 'default';
+        return in_array( $value, $allowed, true ) ? $value : 'classic';
     }
     
     public function handle_form_submit() {
@@ -148,11 +149,11 @@ class WP_Admin_Themes {
             return;
         }
         
-        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'default';
+        $theme = isset( $_POST['wp_admin_theme'] ) ? sanitize_key( $_POST['wp_admin_theme'] ) : 'classic';
         $color = isset( $_POST['wp_admin_primary_color'] ) ? sanitize_hex_color( $_POST['wp_admin_primary_color'] ) : '#2271b1';
         
         if ( ! array_key_exists( $theme, $this->themes ) ) {
-            $theme = 'default';
+            $theme = 'classic';
         }
         
         update_option( 'wp_admin_theme', $theme );
@@ -203,6 +204,12 @@ class WP_Admin_Themes {
     }
     
     public function enqueue_theme_styles() {
+        if ( $this->current_theme === 'classic' ) {
+            $this->dequeue_core_styles();
+            $this->enqueue_classic_styles();
+            return;
+        }
+        
         if ( $this->current_theme !== 'enhanced' ) {
             return;
         }
@@ -220,6 +227,40 @@ class WP_Admin_Themes {
             $custom_css = $this->generate_custom_css();
             wp_add_inline_style( 'wp-admin-theme-enhanced', $custom_css );
         }
+    }
+    
+    private function dequeue_core_styles() {
+        wp_dequeue_style( 'wp-admin' );
+        wp_dequeue_style( 'common' );
+        wp_dequeue_style( 'forms' );
+        wp_dequeue_style( 'admin-menu' );
+        wp_dequeue_style( 'list-tables' );
+        wp_dequeue_style( 'dashboard' );
+        wp_dequeue_style( 'edit' );
+        wp_dequeue_style( 'media' );
+        wp_dequeue_style( 'themes' );
+        wp_dequeue_style( 'widgets' );
+        wp_dequeue_style( 'nav-menus' );
+        wp_dequeue_style( 'about' );
+        wp_dequeue_style( 'site-health' );
+    }
+    
+    private function enqueue_classic_styles() {
+        $base_url = WP_ADMIN_THEMES_URL . 'themes/classic/';
+        
+        wp_enqueue_style( 'wp-admin-classic', $base_url . 'wp-admin.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'common-classic', $base_url . 'common.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'forms-classic', $base_url . 'forms.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'admin-menu-classic', $base_url . 'admin-menu.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'list-tables-classic', $base_url . 'list-tables.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'dashboard-classic', $base_url . 'dashboard.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'edit-classic', $base_url . 'edit.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'media-classic', $base_url . 'media.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'themes-classic', $base_url . 'themes.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'widgets-classic', $base_url . 'widgets.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'nav-menus-classic', $base_url . 'nav-menus.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'about-classic', $base_url . 'about.css', array(), WP_ADMIN_THEMES_VERSION );
+        wp_enqueue_style( 'site-health-classic', $base_url . 'site-health.css', array(), WP_ADMIN_THEMES_VERSION );
     }
     
     private function generate_custom_css() {
@@ -391,8 +432,8 @@ class WP_Admin_Themes {
     }
     
     public function add_body_class( $classes ) {
-        if ( $this->current_theme !== 'default' ) {
-            $classes .= ' wp-admin-theme-' . esc_attr( $this->current_theme );
+        if ( $this->current_theme === 'enhanced' ) {
+            $classes .= ' wp-admin-theme-enhanced';
         }
         return $classes;
     }
@@ -414,7 +455,7 @@ class WP_Admin_Themes {
             wp_send_json_error( 'Unauthorized' );
         }
         
-        update_option( 'wp_admin_theme', 'default' );
+        update_option( 'wp_admin_theme', 'classic' );
         update_option( 'wp_admin_primary_color', '#2271b1' );
         
         wp_send_json_success( array( 'message' => 'Settings reset' ) );
@@ -454,7 +495,7 @@ class WP_Admin_Themes {
     }
     
     public static function activate() {
-        add_option( 'wp_admin_theme', 'default' );
+        add_option( 'wp_admin_theme', 'classic' );
         add_option( 'wp_admin_primary_color', '#2271b1' );
     }
     

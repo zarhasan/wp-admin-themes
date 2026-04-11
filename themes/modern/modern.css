@@ -1600,6 +1600,7 @@
     border-radius: 0;
     position: relative;
     padding: 4px 8px;
+    flex-wrap: wrap;
 }
 
 .wp-admin-theme-modern .wrap .subsubsub a:hover {

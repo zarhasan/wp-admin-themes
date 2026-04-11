@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-22T18:16:00+05:30\n"
+"POT-Creation-Date: 2026-04-11T17:24:54+05:30\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wp-admin-themes\n"
 
 #. Plugin Name of the plugin
 #: wp-admin-themes.php
-#: wp-admin-themes.php:102
+#: wp-admin-themes.php:126
 msgid "WP Admin Themes"
 msgstr ""
 
@@ -40,158 +40,206 @@ msgstr ""
 msgid "https://example.com"
 msgstr ""
 
-#: wp-admin-themes.php:48
-msgid "Default WordPress"
-msgstr ""
-
 #: wp-admin-themes.php:49
-msgid "The classic WordPress admin appearance with the familiar dark sidebar."
+msgid "Default"
 msgstr ""
 
-#: wp-admin-themes.php:52
-msgid "Classic WordPress styling"
+#: wp-admin-themes.php:50
+msgid "Use default WordPress admin styles from core. No customization applied."
 msgstr ""
 
 #: wp-admin-themes.php:53
-msgid "Dark sidebar navigation"
-msgstr ""
-
-#: wp-admin-themes.php:54
-msgid "Familiar user interface"
-msgstr ""
-
-#: wp-admin-themes.php:55
 msgid "Standard WordPress experience"
 msgstr ""
 
+#: wp-admin-themes.php:54
+msgid "Core WordPress styles"
+msgstr ""
+
+#: wp-admin-themes.php:55
+msgid "No modifications"
+msgstr ""
+
 #: wp-admin-themes.php:59
-msgid "Enhanced"
+msgid "Classic"
 msgstr ""
 
 #: wp-admin-themes.php:60
-msgid "Modern, UX-focused design with a light sidebar, improved spacing, and enhanced visual hierarchy."
+msgid "Classic WordPress admin appearance loaded from plugin with the familiar dark sidebar."
 msgstr ""
 
 #: wp-admin-themes.php:63
-msgid "Modern light sidebar design"
+msgid "Classic WordPress styling"
 msgstr ""
 
 #: wp-admin-themes.php:64
-msgid "Enhanced visual hierarchy"
+msgid "Dark sidebar navigation"
 msgstr ""
 
 #: wp-admin-themes.php:65
-msgid "Improved spacing & readability"
+msgid "Familiar user interface"
 msgstr ""
 
 #: wp-admin-themes.php:66
-msgid "Subtle shadows & modern cards"
+msgid "Styles loaded from plugin"
 msgstr ""
 
-#: wp-admin-themes.php:67
-msgid "Customizable primary color"
+#: wp-admin-themes.php:70
+msgid "Enhanced"
 msgstr ""
 
-#: wp-admin-themes.php:68
-msgid "Better focus states"
+#: wp-admin-themes.php:71
+msgid "Classic WordPress aesthetic with subtle UX enhancements: smoother transitions, improved focus states, and refined hover effects."
+msgstr ""
+
+#: wp-admin-themes.php:74
+msgid "Classic WordPress aesthetic preserved"
+msgstr ""
+
+#: wp-admin-themes.php:75
+msgid "Smoother transitions (0.15s)"
 msgstr ""
 
 #: wp-admin-themes.php:76
-msgid "WordPress Blue"
+msgid "Enhanced focus visibility"
 msgstr ""
 
 #: wp-admin-themes.php:77
-msgid "Forest Green"
+msgid "Subtle hover lift effects"
 msgstr ""
 
 #: wp-admin-themes.php:78
-msgid "Royal Purple"
+msgid "Improved button interactions"
 msgstr ""
 
 #: wp-admin-themes.php:79
-msgid "Coral Red"
-msgstr ""
-
-#: wp-admin-themes.php:80
-msgid "Golden"
-msgstr ""
-
-#: wp-admin-themes.php:81
-msgid "Bright Green"
-msgstr ""
-
-#: wp-admin-themes.php:82
-msgid "Dark Slate"
+msgid "Better menu navigation"
 msgstr ""
 
 #: wp-admin-themes.php:83
-msgid "Slate Gray"
+msgid "Modern"
 msgstr ""
 
 #: wp-admin-themes.php:84
-msgid "Sunset Orange"
-msgstr ""
-
-#: wp-admin-themes.php:85
-msgid "Ocean Blue"
-msgstr ""
-
-#: wp-admin-themes.php:86
-msgid "Lavender"
+msgid "Modern, UX-focused design with a light sidebar, improved spacing, and modern visual hierarchy."
 msgstr ""
 
 #: wp-admin-themes.php:87
-msgid "Cherry Red"
+msgid "Modern light sidebar design"
+msgstr ""
+
+#: wp-admin-themes.php:88
+msgid "Enhanced visual hierarchy"
+msgstr ""
+
+#: wp-admin-themes.php:89
+msgid "Improved spacing & readability"
+msgstr ""
+
+#: wp-admin-themes.php:90
+msgid "Subtle shadows & modern cards"
+msgstr ""
+
+#: wp-admin-themes.php:91
+msgid "Customizable primary color"
+msgstr ""
+
+#: wp-admin-themes.php:92
+msgid "Better focus states"
+msgstr ""
+
+#: wp-admin-themes.php:100
+msgid "WordPress Blue"
+msgstr ""
+
+#: wp-admin-themes.php:101
+msgid "Forest Green"
+msgstr ""
+
+#: wp-admin-themes.php:102
+msgid "Royal Purple"
 msgstr ""
 
 #: wp-admin-themes.php:103
+msgid "Coral Red"
+msgstr ""
+
+#: wp-admin-themes.php:104
+msgid "Golden"
+msgstr ""
+
+#: wp-admin-themes.php:105
+msgid "Bright Green"
+msgstr ""
+
+#: wp-admin-themes.php:106
+msgid "Dark Slate"
+msgstr ""
+
+#: wp-admin-themes.php:107
+msgid "Slate Gray"
+msgstr ""
+
+#: wp-admin-themes.php:108
+msgid "Sunset Orange"
+msgstr ""
+
+#: wp-admin-themes.php:109
+msgid "Ocean Blue"
+msgstr ""
+
+#: wp-admin-themes.php:110
+msgid "Lavender"
+msgstr ""
+
+#: wp-admin-themes.php:111
+msgid "Cherry Red"
+msgstr ""
+
+#: wp-admin-themes.php:127
 msgid "Admin Themes"
 msgstr ""
 
-#: wp-admin-themes.php:232
+#: wp-admin-themes.php:343
 msgid "Customize your WordPress admin dashboard appearance with modern themes."
 msgstr ""
 
-#: wp-admin-themes.php:238
+#: wp-admin-themes.php:349
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: wp-admin-themes.php:254
+#: wp-admin-themes.php:365
 msgid "Select Theme"
 msgstr ""
 
-#: wp-admin-themes.php:278
+#: wp-admin-themes.php:389
 msgid "Primary Color"
 msgstr ""
 
-#: wp-admin-themes.php:291
+#: wp-admin-themes.php:402
 msgid "Reset to Default"
 msgstr ""
 
-#: wp-admin-themes.php:310
-msgid "The Enhanced theme provides a modern, refreshed admin experience."
+#: wp-admin-themes.php:435
+msgid "Features"
 msgstr ""
 
-#: wp-admin-themes.php:324
-msgid "Enhanced Features"
-msgstr ""
-
-#: wp-admin-themes.php:340
+#: wp-admin-themes.php:451
 msgid "Save Settings"
 msgstr ""
 
-#: wp-admin-themes.php:343
+#: wp-admin-themes.php:454
 msgid "Your theme selection will be applied immediately after saving."
 msgstr ""
 
-#: wp-admin-themes.php:345
+#: wp-admin-themes.php:456
 msgid "Save Changes"
 msgstr ""
 
-#: wp-admin-themes.php:352
+#: wp-admin-themes.php:463
 msgid "Need Help?"
 msgstr ""
 
-#: wp-admin-themes.php:355
+#: wp-admin-themes.php:466
 msgid "The Enhanced theme is designed to work seamlessly with all WordPress features and most plugins."
 msgstr ""

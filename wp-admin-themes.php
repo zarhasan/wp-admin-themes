@@ -387,7 +387,6 @@ final class WPAT_Plugin {
 		$rtl  = is_rtl();
 
 		$bundles = array(
-			'wp-admin-classic'           => array( 'wp-admin' ),
 			'common-classic'             => array( 'common' ),
 			'forms-classic'              => array( 'forms' ),
 			'admin-menu-classic'         => array( 'admin-menu' ),
@@ -457,7 +456,6 @@ final class WPAT_Plugin {
 		$rtl  = is_rtl();
 
 		$bundles = array(
-			'wp-admin-enhanced'           => array( 'wp-admin' ),
 			'common-enhanced'             => array( 'common' ),
 			'forms-enhanced'              => array( 'forms' ),
 			'admin-menu-enhanced'         => array( 'admin-menu' ),

@@ -314,8 +314,12 @@ final class WPAT_Plugin {
 		);
 	}
 
-	public function enqueue_theme_styles() {
+	public function enqueue_theme_styles( $hook ) {
 		if ( ! is_admin() ) {
+			return;
+		}
+
+		if ( 'settings_page_' . WP_ADMIN_THEMES_SLUG === $hook ) {
 			return;
 		}
 
@@ -365,6 +369,12 @@ final class WPAT_Plugin {
 			'customize-controls',
 			'customize-widgets',
 			'customize-nav-menus',
+			'code-editor',
+			'color-picker',
+			'deprecated-media',
+			'farbtastic',
+			'install',
+			'login',
 			'press-this',
 			'buttons',
 			'wp-auth-check',
@@ -381,22 +391,31 @@ final class WPAT_Plugin {
 		$rtl  = is_rtl();
 
 		$bundles = array(
-			'wp-admin-classic'    => array( 'wp-admin' ),
-			'common-classic'      => array( 'common' ),
-			'forms-classic'       => array( 'forms' ),
-			'admin-menu-classic'  => array( 'admin-menu' ),
-			'dashboard-classic'   => array( 'dashboard' ),
-			'list-tables-classic' => array( 'list-tables' ),
-			'edit-classic'        => array( 'edit' ),
-			'revisions-classic'   => array( 'revisions' ),
-			'media-classic'       => array( 'media' ),
-			'themes-classic'      => array( 'themes' ),
-			'widgets-classic'     => array( 'widgets' ),
-			'nav-menus-classic'   => array( 'nav-menus' ),
-			'about-classic'       => array( 'about' ),
-			'site-icon-classic'   => array( 'site-icon' ),
-			'l10n-classic'        => array( 'l10n' ),
-			'site-health-classic' => array( 'site-health' ),
+			'wp-admin-classic'           => array( 'wp-admin' ),
+			'common-classic'             => array( 'common' ),
+			'forms-classic'              => array( 'forms' ),
+			'admin-menu-classic'         => array( 'admin-menu' ),
+			'dashboard-classic'          => array( 'dashboard' ),
+			'list-tables-classic'        => array( 'list-tables' ),
+			'edit-classic'               => array( 'edit' ),
+			'revisions-classic'          => array( 'revisions' ),
+			'media-classic'              => array( 'media' ),
+			'themes-classic'             => array( 'themes' ),
+			'widgets-classic'            => array( 'widgets' ),
+			'nav-menus-classic'          => array( 'nav-menus' ),
+			'about-classic'              => array( 'about' ),
+			'site-icon-classic'          => array( 'site-icon' ),
+			'l10n-classic'               => array( 'l10n' ),
+			'site-health-classic'        => array( 'site-health' ),
+			'code-editor-classic'        => array( 'code-editor' ),
+			'color-picker-classic'       => array( 'color-picker' ),
+			'customize-controls-classic'  => array( 'customize-controls' ),
+			'customize-nav-menus-classic' => array( 'customize-nav-menus' ),
+			'customize-widgets-classic'  => array( 'customize-widgets' ),
+			'deprecated-media-classic'   => array( 'deprecated-media' ),
+			'farbtastic-classic'         => array( 'farbtastic' ),
+			'install-classic'            => array( 'install' ),
+			'login-classic'              => array( 'login' ),
 		);
 
 		$deps = array();

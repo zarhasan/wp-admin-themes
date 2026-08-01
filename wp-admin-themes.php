@@ -3,7 +3,7 @@
  * Plugin Name: WP Admin Themes
  * Plugin URI: https://example.com/wp-admin-themes
  * Description: Allows selection of different themes for the WordPress admin dashboard with an Enhanced theme featuring modern UX improvements.
- * Version: 1.1.0
+ * Version: __VERSION__
  * Author: Developer
  * Author URI: https://example.com
  * License: GPL v2 or later
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'WP_ADMIN_THEMES_VERSION', '1.1.0' );
+define( 'WP_ADMIN_THEMES_VERSION', '__VERSION__' );
 define( 'WP_ADMIN_THEMES_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
 

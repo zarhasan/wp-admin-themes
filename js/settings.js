@@ -1,32 +1,33 @@
-/**
- * WP Admin Themes - Settings Page JavaScript
- */
+/* WP Admin Themes settings page */
 
 (function($) {
     'use strict';
 
+    const strings = (window.wpatData && window.wpatData.i18n) ? window.wpatData.i18n : {};
+
     const WPATSettings = {
+        i18n: {
+            saving: strings.saving || 'Saving…',
+            save: strings.save || 'Save Changes',
+            resetConfirm: strings.resetConfirm || 'Reset all settings to defaults?',
+        },
+
         init: function() {
             this.bindEvents();
             this.initColorPicker();
             this.initThemePreview();
-            this.initTooltips();
         },
 
         bindEvents: function() {
-            // Theme selection
-            $('.wpat-theme-option input[type="radio"]').on('change', function() {
+            $(document).on('change', '.wpat-theme-option input[type="radio"]', function() {
                 WPATSettings.updateThemePreview($(this).val());
             });
 
-            // Color preset selection
-            $('.wpat-color-preset').on('click', function(e) {
+            $(document).on('click', '.wpat-color-preset', function(e) {
                 e.preventDefault();
-                const color = $(this).data('color');
-                WPATSettings.setColor(color);
+                WPATSettings.setColor($(this).data('color'));
             });
 
-            // Color input change
             $('#wpat-primary-color').on('input', function() {
                 const color = $(this).val();
                 if (WPATSettings.isValidHex(color)) {
@@ -34,18 +35,10 @@
                 }
             });
 
-            // Preview mode buttons
-            $('.wpat-preview-btn').on('click', function() {
-                const mode = $(this).data('mode');
-                WPATSettings.switchPreviewMode(mode);
-            });
-
-            // Form submission
-            $('#wpat-settings-form').on('submit', function(e) {
+            $('#wpat-settings-form').on('submit', function() {
                 WPATSettings.showSavingState();
             });
 
-            // Reset to defaults
             $('#wpat-reset-colors').on('click', function(e) {
                 e.preventDefault();
                 WPATSettings.resetToDefaults();
@@ -53,29 +46,23 @@
         },
 
         initColorPicker: function() {
-            // Initialize WordPress color picker if available
-            if (typeof $.fn.wpColorPicker === 'function') {
-                $('#wpat-primary-color').wpColorPicker({
-                    defaultColor: '#2271b1',
-                    change: function(event, ui) {
-                        WPATSettings.updateColorPreview(ui.color.toString());
-                    },
-                    clear: function() {
-                        WPATSettings.setColor('#2271b1');
-                    }
-                });
+            if (typeof $.fn.wpColorPicker !== 'function') {
+                return;
             }
+            $('#wpat-primary-color').wpColorPicker({
+                defaultColor: '#2271b1',
+                change: function(event, ui) {
+                    WPATSettings.updateColorPreview(ui.color.toString());
+                },
+                clear: function() {
+                    WPATSettings.setColor('#2271b1');
+                }
+            });
         },
 
         initThemePreview: function() {
-            const currentTheme = $('.wpat-theme-option input[type="radio"]:checked').val();
-            this.updateThemePreview(currentTheme);
-        },
-
-        initTooltips: function() {
-            $('.wpat-tooltip').tooltip({
-                position: { my: 'center bottom', at: 'center top-10' }
-            });
+            const current = $('.wpat-theme-option input[type="radio"]:checked').val();
+            this.updateThemePreview(current);
         },
 
         setColor: function(color) {
@@ -86,74 +73,53 @@
 
         updateColorPreview: function(color) {
             $('.wpat-color-preview').css('background-color', color);
-            
-            // Generate hover color
             const hoverColor = this.adjustColor(color, -15);
-            
-            // Update CSS variables
             const root = document.documentElement;
             root.style.setProperty('--wp-admin-theme-color', color);
             root.style.setProperty('--wp-admin-theme-color-hover', hoverColor);
-            
-            // Convert to RGB
             const rgb = this.hexToRgb(color);
             if (rgb) {
                 root.style.setProperty('--wp-admin-theme-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
             }
-            
-            // Update header gradient
-            const header = $('.wpat-settings-header');
-            if (header.length) {
-                header.css('background', `linear-gradient(135deg, ${color} 0%, ${hoverColor} 100%)`);
-            }
         },
 
         updateActivePreset: function(color) {
-            $('.wpat-color-preset').removeClass('active');
-            $(`.wpat-color-preset[data-color="${color}"]`).addClass('active');
+            $('.wpat-color-preset').removeClass('is-active');
+            $(`.wpat-color-preset[data-color="${color}"]`).addClass('is-active');
         },
 
         updateThemePreview: function(theme) {
             $('.wpat-theme-card').removeClass('selected');
             $(`.wpat-theme-option input[value="${theme}"]`).siblings('.wpat-theme-card').addClass('selected');
-            
-            // Show/hide color section
-            if (theme === 'modern') {
-                $('#color-section').slideDown(200);
-            } else {
-                $('#color-section').slideUp(200);
-            }
-        },
 
-        switchPreviewMode: function(mode) {
-            $('.wpat-preview-btn').removeClass('active');
-            $(`.wpat-preview-btn[data-mode="${mode}"]`).addClass('active');
-            
-            const previewFrame = $('#wpat-preview-frame');
-            
-            if (mode === 'desktop') {
-                previewFrame.css('width', '100%');
-            } else if (mode === 'tablet') {
-                previewFrame.css('width', '768px');
-            } else if (mode === 'mobile') {
-                previewFrame.css('width', '375px');
+            const $section = $('#wpat-color-section');
+            if (!$section.length) {
+                return;
+            }
+            if (theme === 'modern') {
+                $section.prop('hidden', false);
+            } else {
+                $section.prop('hidden', true);
             }
         },
 
         resetToDefaults: function() {
-            if (confirm('Are you sure you want to reset all settings to defaults?')) {
-                $('#wpat-primary-color').val('#2271b1');
-                this.setColor('#2271b1');
-                $('input[name="wp_admin_theme"][value="default"]').prop('checked', true).trigger('change');
+            if (!window.confirm(this.i18n.resetConfirm)) {
+                return;
             }
+            $('#wpat-primary-color').val('#2271b1');
+            this.setColor('#2271b1');
+            $('input[name="wp_admin_theme"][value="default"]').prop('checked', true).trigger('change');
         },
 
         showSavingState: function() {
-            const submitBtn = $('.wpat-settings-form .button-primary');
-            submitBtn.prop('disabled', true).text('Saving...');
-            
-            setTimeout(function() {
-                submitBtn.prop('disabled', false).text('Save Changes');
+            const submitBtn = $('#wpat-settings-form .button-primary');
+            if (!submitBtn.length) {
+                return;
+            }
+            submitBtn.prop('disabled', true).text(this.i18n.saving);
+            setTimeout(() => {
+                submitBtn.prop('disabled', false).text(this.i18n.save);
             }, 1000);
         },
 
@@ -180,12 +146,10 @@
         }
     };
 
-    // Initialize on document ready
     $(document).ready(function() {
         WPATSettings.init();
     });
 
-    // Expose to global scope for debugging
     window.WPATSettings = WPATSettings;
 
 })(jQuery);

@@ -100,8 +100,8 @@ final class WPAT_Plugin {
 		add_action( 'init', array( $this, 'register_theme_registry' ), 6 );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_theme_styles' ), 100 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ), 200 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_core_styles' ), 999 );
 		add_filter( 'admin_body_class', array( $this, 'add_body_class' ) );
 
@@ -319,10 +319,6 @@ final class WPAT_Plugin {
 			return;
 		}
 
-		if ( 'settings_page_' . WP_ADMIN_THEMES_SLUG === $hook ) {
-			return;
-		}
-
 		if ( 'classic' === $this->current_theme ) {
 			$this->enqueue_classic_styles();
 			return;
@@ -344,7 +340,7 @@ final class WPAT_Plugin {
 			return;
 		}
 
-		if ( 'classic' !== $this->current_theme ) {
+		if ( 'classic' !== $this->current_theme && 'enhanced' !== $this->current_theme ) {
 			return;
 		}
 
@@ -458,17 +454,80 @@ final class WPAT_Plugin {
 
 	private function enqueue_enhanced_styles() {
 		$base = WP_ADMIN_THEMES_URL . 'themes/enhanced/';
+		$rtl  = is_rtl();
+
+		$bundles = array(
+			'wp-admin-enhanced'           => array( 'wp-admin' ),
+			'common-enhanced'             => array( 'common' ),
+			'forms-enhanced'              => array( 'forms' ),
+			'admin-menu-enhanced'         => array( 'admin-menu' ),
+			'dashboard-enhanced'          => array( 'dashboard' ),
+			'list-tables-enhanced'        => array( 'list-tables' ),
+			'edit-enhanced'               => array( 'edit' ),
+			'revisions-enhanced'          => array( 'revisions' ),
+			'media-enhanced'              => array( 'media' ),
+			'themes-enhanced'             => array( 'themes' ),
+			'widgets-enhanced'            => array( 'widgets' ),
+			'nav-menus-enhanced'          => array( 'nav-menus' ),
+			'about-enhanced'              => array( 'about' ),
+			'site-icon-enhanced'          => array( 'site-icon' ),
+			'l10n-enhanced'               => array( 'l10n' ),
+			'site-health-enhanced'        => array( 'site-health' ),
+			'code-editor-enhanced'        => array( 'code-editor' ),
+			'color-picker-enhanced'       => array( 'color-picker' ),
+			'customize-controls-enhanced'  => array( 'customize-controls' ),
+			'customize-nav-menus-enhanced' => array( 'customize-nav-menus' ),
+			'customize-widgets-enhanced'  => array( 'customize-widgets' ),
+			'deprecated-media-enhanced'   => array( 'deprecated-media' ),
+			'farbtastic-enhanced'         => array( 'farbtastic' ),
+			'install-enhanced'            => array( 'install' ),
+			'login-enhanced'              => array( 'login' ),
+			'view-transitions-enhanced'   => array( 'view-transitions' ),
+		);
+
+		$deps = array();
+		foreach ( $bundles as $handle => $names ) {
+			$basename = $names[0];
+			$candidates = array( $basename . '.css' );
+			if ( $rtl && file_exists( WP_ADMIN_THEMES_PATH . 'themes/enhanced/' . $basename . '-rtl.css' ) ) {
+				$candidates[] = $basename . '-rtl.css';
+			}
+			$found = null;
+			foreach ( $candidates as $candidate ) {
+				if ( file_exists( WP_ADMIN_THEMES_PATH . 'themes/enhanced/' . $candidate ) ) {
+					$found = $candidate;
+					break;
+				}
+			}
+			if ( null === $found ) {
+				continue;
+			}
+			wp_enqueue_style( $handle, $base . $found, $deps, WP_ADMIN_THEMES_VERSION );
+			$deps[] = $handle;
+		}
 
 		wp_enqueue_style(
 			'wpat-enhanced',
 			$base . 'enhance.css',
-			array( 'wp-admin', 'common', 'forms', 'admin-menu', 'list-tables', 'dashboard', 'edit', 'media', 'themes', 'widgets', 'nav-menus', 'about', 'site-health' ),
+			$deps,
 			WP_ADMIN_THEMES_VERSION
 		);
+		$deps[] = 'wpat-enhanced';
+
+		$custom = WP_ADMIN_THEMES_PATH . 'themes/enhanced/custom-color.css';
+		if ( file_exists( $custom ) ) {
+			wp_enqueue_style(
+				'wpat-enhanced-color',
+				WP_ADMIN_THEMES_URL . 'themes/enhanced/custom-color.css',
+				$deps,
+				WP_ADMIN_THEMES_VERSION
+			);
+			$deps[] = 'wpat-enhanced-color';
+		}
 
 		$css = $this->generate_enhanced_css();
 		if ( '' !== $css ) {
-			wp_add_inline_style( 'wpat-enhanced', $css );
+			wp_add_inline_style( 'wpat-enhanced-color', $css );
 		}
 	}
 

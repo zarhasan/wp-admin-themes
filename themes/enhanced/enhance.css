@@ -1,11 +1,159 @@
+/* WP Admin Themes — Enhanced theme.
+ *
+ * A refinement layer that sits ON TOP of the bundled WordPress 7.0.2
+ * styles. It does NOT replace or dequeue core 7.x styles. Its purpose is
+ * to modernize every table, card, postbox, and form while staying
+ * faithful to the 7.0.2 visual language — refined spacing, calmer hover
+ * states, sharper focus rings, and a sidebar/primary token set consistent
+ * with the rest of the plugin.
+ *
+ * Token conventions (set by PHP at enqueue time):
+ *   --wp-admin-theme-color / --wp-admin-theme-color--rgb           primary
+ *   --wp-admin-theme-color-darker-10 / --wp-admin-theme-color-darker-10--rgb
+ *   --wp-admin-theme-color-darker-20
+ *   --wp-admin-sidebar / --wp-admin-sidebar--rgb                    sidebar base
+ *   --wp-admin-sidebar-text / --wp-admin-sidebar-text--rgb          sidebar foreground
+ *   --wp-admin-sidebar-hover                                       sidebar hover state
+ *
+ * Defaults (when no override is set):
+ *   primary #3858e9 / darker-10 #2145e6 / darker-20 #183ad6
+ *   sidebar #1e1e1e / sidebar-text #c7c8cc / sidebar-hover #2c2c2c
+ */
+
 :root {
 	--wpat-ease: cubic-bezier(0.4, 0, 0.2, 1);
-	--wpat-duration-fast: 0.12s;
-	--wpat-duration: 0.2s;
+	--wpat-dur-fast: 0.12s;
+	--wpat-dur: 0.2s;
 	--wpat-hover-tint: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
 	--wpat-active-tint: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.16);
 	--wpat-focus-ring: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color, #3858e9);
+	--wpat-radius-sm: 6px;
+	--wpat-radius: 10px;
+	--wpat-radius-lg: 14px;
+	--wpat-surface: #ffffff;
+	--wpat-surface-hover: #f6f7f7;
+	--wpat-border: #e2e4e7;
+	--wpat-border-light: #f0f0f1;
+	--wpat-text: #1e1e1e;
+	--wpat-text-muted: #50575e;
+	--wpat-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--wpat-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+	--wpat-shadow-md: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
+
+/* ---------------------------------------------------------------
+   1. Sidebar + top bar — drive every surface from --wp-admin-sidebar
+   --------------------------------------------------------------- */
+
+body.wp-admin-theme-enhanced #adminmenuback,
+body.wp-admin-theme-enhanced #adminmenuwrap {
+	background: var(--wp-admin-sidebar, #1e1e1e);
+}
+
+body.wp-admin-theme-enhanced #adminmenuwrap {
+	border-right: 1px solid rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+}
+
+body.wp-admin-theme-enhanced #adminmenu,
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu {
+	background: var(--wp-admin-sidebar, #1e1e1e);
+	color: var(--wp-admin-sidebar-text, #c7c8cc);
+}
+
+body.wp-admin-theme-enhanced #adminmenu a,
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu a,
+body.wp-admin-theme-enhanced #adminmenu div.wp-menu-image:before,
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu-head {
+	color: var(--wp-admin-sidebar-text, #c7c8cc);
+}
+
+body.wp-admin-theme-enhanced #adminmenu li.menu-top:hover,
+body.wp-admin-theme-enhanced #adminmenu li.opensub > a.menu-top,
+body.wp-admin-theme-enhanced #adminmenu li > a.menu-top:focus {
+	background: var(--wp-admin-sidebar-hover, #2c2c2c);
+	color: #ffffff;
+}
+
+body.wp-admin-theme-enhanced #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+body.wp-admin-theme-enhanced #adminmenu li.current a.menu-top {
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #ffffff;
+}
+
+body.wp-admin-theme-enhanced #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu div.wp-menu-image:before,
+body.wp-admin-theme-enhanced #adminmenu li.current a.menu-top div.wp-menu-image:before,
+body.wp-admin-theme-enhanced #adminmenu li.wp-has-current-submenu:hover a.wp-has-current-submenu div.wp-menu-image:before,
+body.wp-admin-theme-enhanced #adminmenu li.current a.menu-top:hover div.wp-menu-image:before {
+	color: #ffffff;
+}
+
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu {
+	border: 1px solid rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+	border-radius: var(--wpat-radius);
+	box-shadow: var(--wpat-shadow-md);
+	padding: 6px;
+}
+
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu a:hover,
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu a:focus {
+	background: var(--wpat-hover-tint);
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu li.current a,
+body.wp-admin-theme-enhanced #adminmenu .wp-submenu li.current a:hover {
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #ffffff;
+	border-radius: var(--wpat-radius-sm);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar {
+	background: var(--wp-admin-sidebar, #1e1e1e);
+	color: var(--wp-admin-sidebar-text, #c7c8cc);
+	border-bottom: 1px solid rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar a.ab-item,
+body.wp-admin-theme-enhanced #wpadminbar .ab-icon:before,
+body.wp-admin-theme-enhanced #wpadminbar .ab-label {
+	color: var(--wp-admin-sidebar-text, #c7c8cc);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li:hover > .ab-item,
+body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li.hover > .ab-item,
+body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li > .ab-item:focus {
+	background: rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+	color: #ffffff;
+}
+
+body.wp-admin-theme-enhanced #wpadminbar .ab-submenu {
+	background: var(--wp-admin-sidebar, #1e1e1e);
+	border: 1px solid rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+	border-radius: var(--wpat-radius);
+	box-shadow: var(--wpat-shadow-md);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar .ab-submenu .ab-item:hover,
+body.wp-admin-theme-enhanced #wpadminbar .ab-submenu .ab-item:focus {
+	background: var(--wpat-hover-tint);
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar #adminbarsearch .adminbar-input {
+	background: rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.06);
+	border: 1px solid rgba(var(--wp-admin-sidebar-text--rgb, 199, 200, 204), 0.12);
+	color: var(--wp-admin-sidebar-text, #c7c8cc);
+	border-radius: var(--wpat-radius-sm);
+}
+
+body.wp-admin-theme-enhanced #wpadminbar #adminbarsearch .adminbar-input:focus {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: 0 0 0 2px var(--wpat-hover-tint);
+}
+
+/* ---------------------------------------------------------------
+   2. Focus + transitions — keep calm, keyboard-only rings
+   --------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: no-preference) {
 	body.wp-admin-theme-enhanced a,
@@ -25,11 +173,11 @@
 	body.wp-admin-theme-enhanced .filter-links li > a,
 	body.wp-admin-theme-enhanced .nav-menus-php .item-type {
 		transition:
-			background-color var(--wpat-duration-fast) var(--wpat-ease),
-			border-color var(--wpat-duration-fast) var(--wpat-ease),
-			box-shadow var(--wpat-duration-fast) var(--wpat-ease),
-			color var(--wpat-duration-fast) var(--wpat-ease),
-			transform var(--wpat-duration-fast) var(--wpat-ease);
+			background-color var(--wpat-dur-fast) var(--wpat-ease),
+			border-color var(--wpat-dur-fast) var(--wpat-ease),
+			box-shadow var(--wpat-dur-fast) var(--wpat-ease),
+			color var(--wpat-dur-fast) var(--wpat-ease),
+			transform var(--wpat-dur-fast) var(--wpat-ease);
 	}
 }
 
@@ -41,7 +189,7 @@ body.wp-admin-theme-enhanced :focus-visible {
 body.wp-admin-theme-enhanced a:focus-visible,
 body.wp-admin-theme-enhanced .button-link:focus-visible {
 	box-shadow: var(--wpat-focus-ring);
-	border-radius: 2px;
+	border-radius: var(--wpat-radius-sm);
 }
 
 body.wp-admin-theme-enhanced .wp-core-ui .button:focus-visible,
@@ -53,52 +201,17 @@ body.wp-admin-theme-enhanced .wp-filter .button:focus-visible {
 	box-shadow: var(--wpat-focus-ring);
 }
 
-body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li > .ab-item:hover,
-body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li > .ab-item:focus,
-body.wp-admin-theme-enhanced #wpadminbar .ab-top-menu > li:hover > .ab-item {
-	background: var(--wpat-hover-tint);
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-body.wp-admin-theme-enhanced #wpadminbar .ab-submenu {
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.04);
-}
-
-body.wp-admin-theme-enhanced #wpadminbar .ab-submenu .ab-item {
-	border-radius: 4px;
-}
-
-body.wp-admin-theme-enhanced #wpadminbar .ab-submenu .ab-item:hover,
-body.wp-admin-theme-enhanced #wpadminbar .ab-submenu .ab-item:focus {
-	background: var(--wpat-hover-tint);
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-body.wp-admin-theme-enhanced #adminmenu li.menu-top:hover,
-body.wp-admin-theme-enhanced #adminmenu li.opensub > a.menu-top,
-body.wp-admin-theme-enhanced #adminmenu li > a.menu-top:focus {
-	background: var(--wpat-hover-tint);
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-body.wp-admin-theme-enhanced #adminmenu .wp-submenu .current a,
-body.wp-admin-theme-enhanced #adminmenu .wp-submenu a:hover,
-body.wp-admin-theme-enhanced #adminmenu .wp-submenu a:focus {
-	background: var(--wpat-hover-tint);
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-body.wp-admin-theme-enhanced #adminmenu a {
-	border-radius: 4px;
-}
+/* ---------------------------------------------------------------
+   3. Buttons — keep modern, sharper hover
+   --------------------------------------------------------------- */
 
 body.wp-admin-theme-enhanced .wp-core-ui .button {
-	border-radius: 4px;
+	border-radius: var(--wpat-radius-sm);
 }
 
 body.wp-admin-theme-enhanced .wp-core-ui .button:hover {
 	transform: translateY(-1px);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--wpat-shadow-sm);
 }
 
 body.wp-admin-theme-enhanced .wp-core-ui .button:active {
@@ -107,8 +220,26 @@ body.wp-admin-theme-enhanced .wp-core-ui .button:active {
 
 body.wp-admin-theme-enhanced .wp-core-ui .button-primary:hover,
 body.wp-admin-theme-enhanced .wp-core-ui .button-primary:focus {
-	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 var(--wp-admin-border-width-focus, 1.5px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.25);
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 var(--wp-admin-border-width-focus, 1.5px) rgba(var(--wp-admin-theme-color-darker-10--rgb, 33, 68, 230), 0.25);
 }
+
+body.wp-admin-theme-enhanced .wrap .page-title-action {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wp-admin-theme-color, #3858e9);
+	border-radius: var(--wpat-radius-sm);
+	transition: all var(--wpat-dur-fast) var(--wpat-ease);
+}
+
+body.wp-admin-theme-enhanced .wrap .page-title-action:hover {
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #ffffff;
+	transform: translateY(-1px);
+	box-shadow: var(--wpat-shadow);
+}
+
+/* ---------------------------------------------------------------
+   4. Forms — refinement
+   --------------------------------------------------------------- */
 
 body.wp-admin-theme-enhanced .form-table th,
 body.wp-admin-theme-enhanced .form-table td {
@@ -128,18 +259,30 @@ body.wp-admin-theme-enhanced select:hover {
 
 body.wp-admin-theme-enhanced .notice {
 	border-left-width: 4px;
+	border-radius: var(--wpat-radius);
+	box-shadow: var(--wpat-shadow-sm);
 }
+
+/* ---------------------------------------------------------------
+   5. Cards / postboxes — modern shadow on hover
+   --------------------------------------------------------------- */
 
 body.wp-admin-theme-enhanced .plugin-card,
 body.wp-admin-theme-enhanced .theme-browser .theme {
-	border-radius: 8px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	border-radius: var(--wpat-radius-lg);
+	box-shadow: var(--wpat-shadow-sm);
+	transition: all var(--wpat-dur) var(--wpat-ease);
 }
 
 body.wp-admin-theme-enhanced .plugin-card:hover,
 body.wp-admin-theme-enhanced .theme-browser .theme:hover {
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+	box-shadow: var(--wpat-shadow-md);
+	transform: translateY(-1px);
 }
+
+/* ---------------------------------------------------------------
+   6. List tables — modern spacing + hover tint
+   --------------------------------------------------------------- */
 
 body.wp-admin-theme-enhanced .widefat thead th,
 body.wp-admin-theme-enhanced .widefat tfoot th {
@@ -158,38 +301,69 @@ body.wp-admin-theme-enhanced .widefat .row-actions a:hover {
 	text-decoration: underline;
 }
 
+/* ---------------------------------------------------------------
+   7. Menu navigation (Appearance → Menus)
+   --------------------------------------------------------------- */
+
 body.wp-admin-theme-enhanced .nav-menus-php .menu-item-handle {
-	border-radius: 6px;
+	border-radius: var(--wpat-radius);
 }
 
 body.wp-admin-theme-enhanced .nav-menus-php .menu-item-handle:hover {
 	border-color: var(--wp-admin-theme-color, #3858e9);
 }
 
+/* ---------------------------------------------------------------
+   8. Dashboard widgets / welcome panel — modern polish
+   --------------------------------------------------------------- */
+
 body.wp-admin-theme-enhanced .welcome-panel {
-	border-radius: 8px;
+	border-radius: var(--wpat-radius-lg);
 }
 
 body.wp-admin-theme-enhanced #dashboard-widgets .postbox {
-	border-radius: 8px;
+	border-radius: var(--wpat-radius-lg);
 }
+
+/* ---------------------------------------------------------------
+   9. Modals — refined surface, sharper shadow
+   --------------------------------------------------------------- */
 
 body.wp-admin-theme-enhanced .media-modal,
 body.wp-admin-theme-enhanced .wp-dialog,
 body.wp-admin-theme-enhanced .ui-dialog {
-	border-radius: 8px;
-	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+	border-radius: var(--wpat-radius-lg);
+	box-shadow: var(--wpat-shadow-md);
 }
 
+/* ---------------------------------------------------------------
+   10. Subsubsub (All | Published | Draft links) — pill style
+   --------------------------------------------------------------- */
+
 body.wp-admin-theme-enhanced .filter-links li > a {
-	border-radius: 4px;
+	border-radius: var(--wpat-radius-sm);
 	padding: 4px 10px;
+	transition: all var(--wpat-dur-fast) var(--wpat-ease);
 }
 
 body.wp-admin-theme-enhanced .filter-links li > a:hover,
 body.wp-admin-theme-enhanced .filter-links .current {
 	background: var(--wpat-hover-tint);
+	color: var(--wp-admin-theme-color, #3858e9);
 }
+
+/* ---------------------------------------------------------------
+   11. Tables border style — cleaner separators
+   --------------------------------------------------------------- */
+
+body.wp-admin-theme-enhanced .widefat td,
+body.wp-admin-theme-enhanced .widefat th {
+	border-bottom: 1px solid var(--wpat-border-light);
+}
+
+/* ---------------------------------------------------------------
+   12. Reduced motion override
+   --------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
 	body.wp-admin-theme-enhanced *,
@@ -201,10 +375,17 @@ body.wp-admin-theme-enhanced .filter-links .current {
 		scroll-behavior: auto !important;
 	}
 
-	body.wp-admin-theme-enhanced .wp-core-ui .button:hover {
+	body.wp-admin-theme-enhanced .wp-core-ui .button:hover,
+	body.wp-admin-theme-enhanced .wrap .page-title-action:hover,
+	body.wp-admin-theme-enhanced .plugin-card:hover,
+	body.wp-admin-theme-enhanced .theme-browser .theme:hover {
 		transform: none;
 	}
 }
+
+/* ---------------------------------------------------------------
+   13. High-contrast focus
+   --------------------------------------------------------------- */
 
 @media (prefers-contrast: more) {
 	body.wp-admin-theme-enhanced :focus-visible {

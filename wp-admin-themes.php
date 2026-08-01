@@ -20,19 +20,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WP_ADMIN_THEMES_VERSION', '0.0.1' );
-define( 'WP_ADMIN_THEMES_FILE', __FILE__ );
-define( 'WP_ADMIN_THEMES_PATH', plugin_dir_path( __FILE__ ) );
-define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
-define( 'WP_ADMIN_THEMES_SLUG', 'wp-admin-themes' );
-define( 'WP_ADMIN_THEMES_OPTION_THEME', 'wp_admin_theme' );
-define( 'WP_ADMIN_THEMES_OPTION_COLOR', 'wp_admin_primary_color' );
+	define( 'WP_ADMIN_THEMES_VERSION', '0.0.1' );
+	define( 'WP_ADMIN_THEMES_FILE', __FILE__ );
+	define( 'WP_ADMIN_THEMES_PATH', plugin_dir_path( __FILE__ ) );
+	define( 'WP_ADMIN_THEMES_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WP_ADMIN_THEMES_SLUG', 'wp-admin-themes' );
+	define( 'WP_ADMIN_THEMES_OPTION_THEME', 'wp_admin_theme' );
+	define( 'WP_ADMIN_THEMES_OPTION_COLOR', 'wp_admin_primary_color' );
+
+	const WPAT_THEME_DEFAULTS = array(
+		'classic'  => '#0073aa',
+		'enhanced' => '#3858e9',
+		'modern'   => '#2271b1',
+	);
 
 final class WPAT_Plugin {
 
 	private $themes = array();
 	private $current_theme = 'default';
-	private $primary_color = '#2271b1';
+	private $primary_color = '';
 	private $preset_colors = array();
 
 	private static $instance = null;
@@ -138,7 +144,7 @@ final class WPAT_Plugin {
 
 	private function load_options() {
 		$this->current_theme = get_option( WP_ADMIN_THEMES_OPTION_THEME, 'default' );
-		$this->primary_color = get_option( WP_ADMIN_THEMES_OPTION_COLOR, '#2271b1' );
+		$this->primary_color = get_option( WP_ADMIN_THEMES_OPTION_COLOR, '' );
 	}
 
 	public function load_textdomain() {
@@ -176,7 +182,7 @@ final class WPAT_Plugin {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_primary_color' ),
-				'default'           => '#2271b1',
+				'default'           => '',
 			)
 		);
 	}
@@ -184,11 +190,27 @@ final class WPAT_Plugin {
 	public function sanitize_theme( $value ) {
 		$value   = is_string( $value ) ? sanitize_key( $value ) : 'default';
 		$allowed = array_keys( $this->themes );
-		return in_array( $value, $allowed, true ) ? $value : 'default';
+		if ( ! in_array( $value, $allowed, true ) ) {
+			$value = 'default';
+		}
+
+		$old_theme = $this->current_theme;
+		$new_theme = $value;
+
+		if ( 'default' !== $new_theme && 'default' !== $old_theme && $old_theme !== $new_theme ) {
+			$old_default   = isset( WPAT_THEME_DEFAULTS[ $old_theme ] ) ? WPAT_THEME_DEFAULTS[ $old_theme ] : '';
+			$current_color = get_option( WP_ADMIN_THEMES_OPTION_COLOR, '' );
+			if ( '' !== $old_default && $old_default === $current_color ) {
+				$new_default = isset( WPAT_THEME_DEFAULTS[ $new_theme ] ) ? WPAT_THEME_DEFAULTS[ $new_theme ] : '';
+				update_option( WP_ADMIN_THEMES_OPTION_COLOR, $new_default );
+			}
+		}
+
+		return $new_theme;
 	}
 
 	public function sanitize_primary_color( $value ) {
-		return sanitize_hex_color( $value ) ?: '#2271b1';
+		return sanitize_hex_color( $value ) ?: '';
 	}
 
 	public function enqueue_admin_assets( $hook ) {
@@ -225,6 +247,11 @@ final class WPAT_Plugin {
 					'saving'       => __( 'Saving…', 'wp-admin-themes' ),
 					'save'         => __( 'Save Changes', 'wp-admin-themes' ),
 					'resetConfirm' => __( 'Reset all settings to defaults?', 'wp-admin-themes' ),
+				),
+				'defaults' => array(
+					'classic'  => '#0073aa',
+					'enhanced' => '#3858e9',
+					'modern'   => '#2271b1',
 				),
 			)
 		);
@@ -314,7 +341,6 @@ final class WPAT_Plugin {
 			'site-icon-classic'   => 'site-icon' . $suffix . '.css',
 			'l10n-classic'        => 'l10n.css',
 			'site-health-classic' => 'site-health.css',
-			'colors-classic'      => 'colors-blue' . $suffix . '.css',
 		);
 
 		$deps = array();
@@ -324,6 +350,22 @@ final class WPAT_Plugin {
 			}
 			wp_enqueue_style( $handle, $base . $file, $deps, WP_ADMIN_THEMES_VERSION );
 			$deps[] = $handle;
+		}
+
+		$custom = WP_ADMIN_THEMES_PATH . 'themes/classic/custom-color.css';
+		if ( file_exists( $custom ) ) {
+			wp_enqueue_style(
+				'wpat-classic-color',
+				WP_ADMIN_THEMES_URL . 'themes/classic/custom-color.css',
+				$deps,
+				WP_ADMIN_THEMES_VERSION
+			);
+			$deps[] = 'wpat-classic-color';
+		}
+
+		$css = $this->generate_classic_css();
+		if ( '' !== $css ) {
+			wp_add_inline_style( 'wpat-classic-color', $css );
 		}
 	}
 
@@ -336,6 +378,11 @@ final class WPAT_Plugin {
 			array( 'wp-admin', 'common', 'forms', 'admin-menu', 'list-tables', 'dashboard', 'edit', 'media', 'themes', 'widgets', 'nav-menus', 'about', 'site-health' ),
 			WP_ADMIN_THEMES_VERSION
 		);
+
+		$css = $this->generate_enhanced_css();
+		if ( '' !== $css ) {
+			wp_add_inline_style( 'wpat-enhanced', $css );
+		}
 	}
 
 	private function enqueue_modern_styles() {
@@ -351,23 +398,94 @@ final class WPAT_Plugin {
 			WP_ADMIN_THEMES_VERSION
 		);
 
-		$custom = $this->generate_custom_css();
+		$custom = $this->generate_modern_css();
 		wp_add_inline_style( 'wp-admin-theme-modern', $custom );
 	}
 
-	private function generate_custom_css() {
+	private function default_primary_color() {
+		if ( isset( WPAT_THEME_DEFAULTS[ $this->current_theme ] ) ) {
+			return WPAT_THEME_DEFAULTS[ $this->current_theme ];
+		}
+		return '';
+	}
+
+	private function resolve_primary_color() {
 		$color = $this->primary_color;
-		$hover = $this->adjust_color( $color, -15 );
+		if ( '' !== $color ) {
+			return $color;
+		}
+		return $this->default_primary_color();
+	}
+
+	private function generate_classic_css() {
+		$color = $this->resolve_primary_color();
 		$rgb   = $this->hex_to_rgb_array( $color );
 
+		$lighter_base = $this->blend_with_white( $color, 0.35 );
+		$darker10     = $this->adjust_color( $color, -10 );
+		$darker20     = $this->adjust_color( $color, -20 );
+
 		return sprintf(
-			':root{--wp-admin-theme-primary:%1$s;--wp-admin-theme-color:%1$s;--wp-admin-theme-color-rgb:%2$d,%3$d,%4$d;--wp-admin-theme-color-hover:%5$s;--wp-admin-theme-color-light:%6$s;}',
+			'body.wp-admin-theme-classic{--wpat-classic-color:%1$s;--wpat-classic-color-rgb:%2$d,%3$d,%4$d;--wpat-classic-link-hover:%5$s;--wpat-classic-sidebar-base:%6$s;--wpat-classic-sidebar-hover:%7$s;--wpat-classic-focus:%7$s;--wpat-classic-highlight:%8$s;--wpat-classic-submenu-bg:%7$s;--wpat-classic-submenu-link:%9$s;--wpat-classic-submenu-icon:%9$s;}',
 			esc_attr( $color ),
 			(int) $rgb['r'],
 			(int) $rgb['g'],
 			(int) $rgb['b'],
-			esc_attr( $hover ),
+			esc_attr( $this->blend_with_white( $color, 0.55 ) ),
+			esc_attr( $lighter_base ),
+			esc_attr( $darker20 ),
+			esc_attr( $darker10 ),
+			esc_attr( $this->blend_with_white( $color, 0.85 ) )
+		);
+	}
+
+	private function generate_enhanced_css() {
+		$color = $this->resolve_primary_color();
+		$rgb   = $this->hex_to_rgb_array( $color );
+
+		$darker10 = $this->adjust_color( $color, -10 );
+		$darker20 = $this->adjust_color( $color, -20 );
+
+		return sprintf(
+			':root{--wp-admin-theme-color:%1$s;--wp-admin-theme-color--rgb:%2$d,%3$d,%4$d;--wp-admin-theme-color-darker-10:%5$s;--wp-admin-theme-color-darker-20:%6$s;--wp-admin-theme-color-hover:%5$s;}',
+			esc_attr( $color ),
+			(int) $rgb['r'],
+			(int) $rgb['g'],
+			(int) $rgb['b'],
+			esc_attr( $darker10 ),
+			esc_attr( $darker20 )
+		);
+	}
+
+	private function generate_modern_css() {
+		$color = $this->resolve_primary_color();
+		$rgb   = $this->hex_to_rgb_array( $color );
+
+		$darker10 = $this->adjust_color( $color, -10 );
+		$darker20 = $this->adjust_color( $color, -20 );
+
+		return sprintf(
+			':root{--wp-admin-theme-primary:%1$s;--wp-admin-theme-color:%1$s;--wp-admin-theme-color--rgb:%2$d,%3$d,%4$d;--wp-admin-theme-color-rgb:%2$d,%3$d,%4$d;--wp-admin-theme-color-hover:%5$s;--wp-admin-theme-color-darker-10:%6$s;--wp-admin-theme-color-darker-20:%7$s;--wp-admin-theme-color-light:%8$s;}',
+			esc_attr( $color ),
+			(int) $rgb['r'],
+			(int) $rgb['g'],
+			(int) $rgb['b'],
+			esc_attr( $darker10 ),
+			esc_attr( $darker10 ),
+			esc_attr( $darker20 ),
 			esc_attr( $this->adjust_color( $color, 25 ) )
+		);
+	}
+
+	private function blend_with_white( $hex, $ratio ) {
+		$rgb   = $this->hex_to_rgb_array( $hex );
+		$ratio = max( 0.0, min( 1.0, $ratio ) );
+
+		return sprintf(
+			'#%02x%02x%02x',
+			(int) round( $rgb['r'] + ( 255 - $rgb['r'] ) * $ratio ),
+			(int) round( $rgb['g'] + ( 255 - $rgb['g'] ) * $ratio ),
+			(int) round( $rgb['b'] + ( 255 - $rgb['b'] ) * $ratio )
 		);
 	}
 
@@ -377,9 +495,11 @@ final class WPAT_Plugin {
 		}
 
 		$current_theme = $this->current_theme;
-		$current_color = $this->primary_color;
+		$current_color = $this->resolve_primary_color();
+		$default_color = $this->default_primary_color();
 		$saved         = isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'];
 		$theme         = isset( $this->themes[ $current_theme ] ) ? $this->themes[ $current_theme ] : $this->themes['default'];
+		$show_color    = 'default' !== $current_theme;
 		?>
 		<div class="wrap wpat-settings-wrapper" data-theme="<?php echo esc_attr( $current_theme ); ?>">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -428,8 +548,20 @@ final class WPAT_Plugin {
 									<?php endforeach; ?>
 								</div>
 
-								<div class="wpat-color-section" id="wpat-color-section" hidden>
-									<h2><?php esc_html_e( 'Primary Color', 'wp-admin-themes' ); ?></h2>
+								<div class="wpat-color-section" id="wpat-color-section"<?php echo $show_color ? '' : ' hidden'; ?>>
+									<h2>
+										<?php esc_html_e( 'Accent &amp; Sidebar Color', 'wp-admin-themes' ); ?>
+									</h2>
+									<p class="description">
+										<?php
+										printf(
+											/* translators: %s: default accent hex for the active theme */
+											esc_html__( 'Pick a primary color. The sidebar, links and focus rings of the active theme follow the picked color. Default for %s is %s.', 'wp-admin-themes' ),
+											esc_html( $theme['name'] ),
+											'<code>' . esc_html( $default_color ) . '</code>'
+										);
+										?>
+									</p>
 									<div class="wpat-color-picker-wrapper">
 										<div class="wpat-color-main">
 											<div class="wpat-color-input-wrapper">
@@ -442,10 +574,10 @@ final class WPAT_Plugin {
 													id="wpat-primary-color"
 													value="<?php echo esc_attr( $current_color ); ?>"
 													class="wpat-color-input"
-													data-default-color="#2271b1">
+													data-default-color="<?php echo esc_attr( $default_color ); ?>">
 											</div>
 											<button type="button" class="button" id="wpat-reset-colors">
-												<?php esc_html_e( 'Reset to Default', 'wp-admin-themes' ); ?>
+												<?php esc_html_e( 'Reset to Theme Default', 'wp-admin-themes' ); ?>
 											</button>
 										</div>
 										<div class="wpat-color-presets" role="listbox" aria-label="<?php esc_attr_e( 'Color presets', 'wp-admin-themes' ); ?>">
@@ -550,7 +682,7 @@ final class WPAT_Plugin {
 		}
 
 		update_option( WP_ADMIN_THEMES_OPTION_THEME, 'default' );
-		update_option( WP_ADMIN_THEMES_OPTION_COLOR, '#2271b1' );
+		delete_option( WP_ADMIN_THEMES_OPTION_COLOR );
 
 		wp_send_json_success(
 			array(
@@ -593,7 +725,7 @@ final class WPAT_Plugin {
 			add_option( WP_ADMIN_THEMES_OPTION_THEME, 'default' );
 		}
 		if ( false === get_option( WP_ADMIN_THEMES_OPTION_COLOR ) ) {
-			add_option( WP_ADMIN_THEMES_OPTION_COLOR, '#2271b1' );
+			add_option( WP_ADMIN_THEMES_OPTION_COLOR, '' );
 		}
 	}
 

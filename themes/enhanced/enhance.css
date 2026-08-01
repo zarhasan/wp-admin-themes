@@ -2,8 +2,8 @@
 	--wpat-ease: cubic-bezier(0.4, 0, 0.2, 1);
 	--wpat-duration-fast: 0.12s;
 	--wpat-duration: 0.2s;
-	--wpat-hover-tint: rgba(56, 88, 233, 0.08);
-	--wpat-active-tint: rgba(56, 88, 233, 0.16);
+	--wpat-hover-tint: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	--wpat-active-tint: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.16);
 	--wpat-focus-ring: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color, #3858e9);
 }
 
@@ -107,7 +107,7 @@ body.wp-admin-theme-enhanced .wp-core-ui .button:active {
 
 body.wp-admin-theme-enhanced .wp-core-ui .button-primary:hover,
 body.wp-admin-theme-enhanced .wp-core-ui .button-primary:focus {
-	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 var(--wp-admin-border-width-focus, 1.5px) rgba(56, 88, 233, 0.25);
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 var(--wp-admin-border-width-focus, 1.5px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.25);
 }
 
 body.wp-admin-theme-enhanced .form-table th,
@@ -147,7 +147,7 @@ body.wp-admin-theme-enhanced .widefat tfoot th {
 }
 
 body.wp-admin-theme-enhanced .widefat tbody tr:hover {
-	background-color: rgba(56, 88, 233, 0.025);
+	background-color: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.025);
 }
 
 body.wp-admin-theme-enhanced .widefat .row-actions a {

@@ -3,9 +3,11 @@
 (function($) {
     'use strict';
 
-    const strings = (window.wpatData && window.wpatData.i18n) ? window.wpatData.i18n : {};
+    const data = window.wpatData || {};
+    const strings = data.i18n || {};
 
     const WPATSettings = {
+        defaults: data.defaults || {},
         i18n: {
             saving: strings.saving || 'Saving…',
             save: strings.save || 'Save Changes',
@@ -41,7 +43,7 @@
 
             $('#wpat-reset-colors').on('click', function(e) {
                 e.preventDefault();
-                WPATSettings.resetToDefaults();
+                WPATSettings.resetToThemeDefault();
             });
         },
 
@@ -49,20 +51,27 @@
             if (typeof $.fn.wpColorPicker !== 'function') {
                 return;
             }
+            const theme = this.getCurrentTheme();
+            const defaultColor = this.defaults[theme] || this.defaults.modern || '#2271b1';
             $('#wpat-primary-color').wpColorPicker({
-                defaultColor: '#2271b1',
+                defaultColor: defaultColor,
                 change: function(event, ui) {
                     WPATSettings.updateColorPreview(ui.color.toString());
                 },
                 clear: function() {
-                    WPATSettings.setColor('#2271b1');
+                    WPATSettings.setColor(defaultColor);
                 }
             });
         },
 
         initThemePreview: function() {
-            const current = $('.wpat-theme-option input[type="radio"]:checked').val();
+            const current = this.getCurrentTheme();
             this.updateThemePreview(current);
+        },
+
+        getCurrentTheme: function() {
+            const checked = $('.wpat-theme-option input[type="radio"]:checked').val();
+            return checked || 'default';
         },
 
         setColor: function(color) {
@@ -73,12 +82,11 @@
 
         updateColorPreview: function(color) {
             $('.wpat-color-preview').css('background-color', color);
-            const hoverColor = this.adjustColor(color, -15);
             const root = document.documentElement;
             root.style.setProperty('--wp-admin-theme-color', color);
-            root.style.setProperty('--wp-admin-theme-color-hover', hoverColor);
             const rgb = this.hexToRgb(color);
             if (rgb) {
+                root.style.setProperty('--wp-admin-theme-color--rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
                 root.style.setProperty('--wp-admin-theme-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
             }
         },
@@ -93,23 +101,40 @@
             $(`.wpat-theme-option input[value="${theme}"]`).siblings('.wpat-theme-card').addClass('selected');
 
             const $section = $('#wpat-color-section');
-            if (!$section.length) {
-                return;
-            }
-            if (theme === 'modern') {
-                $section.prop('hidden', false);
-            } else {
-                $section.prop('hidden', true);
+            if ($section.length) {
+                if (theme === 'default') {
+                    $section.prop('hidden', true);
+                } else {
+                    $section.prop('hidden', false);
+                    const defaultColor = this.defaults[theme] || '#2271b1';
+                    const $input = $('#wpat-primary-color');
+                    if (!$input.val() || $input.data('was-empty')) {
+                        this.setColor(defaultColor);
+                        $input.data('was-empty', true);
+                    } else {
+                        this.setColor($input.val());
+                    }
+                    $input.data('default-color', defaultColor);
+                    if (typeof $.fn.wpColorPicker === 'function') {
+                        try {
+                            $input.wpColorPicker('option', 'defaultColor', defaultColor);
+                        } catch (e) {}
+                    }
+                }
             }
         },
 
-        resetToDefaults: function() {
-            if (!window.confirm(this.i18n.resetConfirm)) {
+        resetToThemeDefault: function() {
+            const theme = this.getCurrentTheme();
+            const defaultColor = this.defaults[theme];
+            if (!defaultColor) {
+                if (!window.confirm(this.i18n.resetConfirm)) {
+                    return;
+                }
+                $('input[name="wp_admin_theme"][value="default"]').prop('checked', true).trigger('change');
                 return;
             }
-            $('#wpat-primary-color').val('#2271b1');
-            this.setColor('#2271b1');
-            $('input[name="wp_admin_theme"][value="default"]').prop('checked', true).trigger('change');
+            this.setColor(defaultColor);
         },
 
         showSavingState: function() {
@@ -134,15 +159,6 @@
                 g: parseInt(result[2], 16),
                 b: parseInt(result[3], 16)
             } : null;
-        },
-
-        adjustColor: function(hex, percent) {
-            const num = parseInt(hex.replace('#', ''), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = Math.min(255, Math.max(0, (num >> 16) + amt));
-            const G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
-            const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
-            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
         }
     };
 

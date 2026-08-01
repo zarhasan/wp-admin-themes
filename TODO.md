@@ -1,39 +1,46 @@
 # WP Admin Themes — TODO
 
-Complete the following tasks for this plugin. Implement the logic as you see fit; the items below describe **what** needs to be achieved, not how.
+## 1. Color Settings
 
-## 1. Classic Theme (`wordpress-6.9.5`)
+Add two independent color settings to the theme settings page:
 
-- Deliver a faithful "classic" admin theme experience based on the bundled `wordpress-6.9.5` assets.
-- The classic theme must load cleanly and render the admin UI as expected from that WordPress version, without leaking modern (7.x) styles.
-- Ensure the new WordPress admin theme is fully dequeued/deregistered when the classic theme is active, so no conflicts remain between core 7.x styles and the classic stylesheets.
-- Verify the classic theme works across the standard admin screens (dashboard, list tables, edit screens, settings, media, widgets, nav-menus, site-health, about).
+- **Sidebar color** — controls the admin sidebar/background tone. Default to `#1d2327` for the classic theme.
+- **Primary color** — controls the accent/link/brand color used throughout the admin UI. Default to `#096484` for the classic theme.
 
-## 2. Enhanced Theme (`wordpress-7.0.2`)
+Requirements:
 
-- Rework the current `enhanced` theme so it reads as a refined, enhanced version of the new theme (`wordpress-7.0.2`) — not a re-skin of classic.
-- Preserve the 7.0.2 visual language while adding tasteful UX improvements (transitions, focus states, hover behavior, button/menu interactions).
-- Keep it compatible with core 7.x styles; the enhanced theme should layer on top of core rather than replace it wholesale.
+- Both settings must be user-configurable from the settings page and persist on save.
+- Both settings must apply to the **classic** theme.
+- Both settings must also apply to the **enhanced** theme (see below).
+- The color picker experience should match the existing modern-theme color picker UX (presets, reset, live preview where applicable).
 
-## 3. Modern Theme — Design & Layout Bug Audit
+## 2. Enhanced Theme Purpose
 
-- Perform a deep analysis of the `modern` theme for design and layout bugs across all admin screens.
-- Cover visual regression, spacing, alignment, responsive behavior, color contrast, focus visibility, component states (hover/active/disabled/error), and any inconsistencies with WordPress admin conventions.
-- Log each issue as a new row in `sheets/bugs.csv` with the headers: `Status,Severity,Title,Type,File,Description,Suggested fix`.
-  - `Status` — e.g. open.
-  - `Severity` — blocker / critical / major / minor / trivial.
-  - `Type` — design / layout / responsive / accessibility / interaction.
-  - `File` — the stylesheet/template/screen where the issue is observable.
-  - `Description` — what's wrong and where it's visible (steps to reproduce or screen context).
-  - `Suggested fix` — a direction, not a full implementation.
+Redefine the `enhanced` theme so its purpose is clear:
 
-## 4. wordpress.org Guidelines Compliance Audit
+- It is built on top of the **new WordPress theme** (`wordpress-7.0.2`), not the classic one.
+- Its job is to **modernize every table, card, and element** of the WordPress dashboard while staying faithful to the 7.0.2 visual language.
+- It must remain an enhancement layer over core 7.x styles — not a wholesale replacement.
 
-- Analyze the plugin (code, assets, enqueue strategy, options, headers, text domain, capability checks, nonce usage, uninstall routine) against the wordpress.org plugin guidelines and coding standards.
-- Log every deviation in `sheets/bugs.csv` using the same headers as task 3, with `Type` set to `compliance` and `File` pointing to the relevant PHP/asset file.
-- Cover the usual review hotspots: proper prefixing, sanitization/escaping, capability checks, nonce verification, no direct file access, asset enqueueing rules, license/header correctness, and clean uninstall.
+## 3. Enhanced Theme Primary Color
+
+Make the enhanced theme's primary color customizable. The new WordPress theme defines its primary color through a set of CSS custom properties that must all stay in sync when the user picks a color:
+
+```css
+--wp-admin-theme-color: #3858e9;
+--wp-admin-theme-color--rgb: 56, 88, 233;
+--wp-admin-theme-color-darker-10: #2145e6;
+--wp-admin-theme-color-darker-10--rgb: 33, 68, 230;
+--wp-admin-theme-color-darker-20: #183ad6;
+```
+
+Requirements:
+
+- When the user changes the enhanced theme's primary color, all related CSS variables (base, rgb, darker-10, darker-10-rgb, darker-20) must be derived and applied consistently across the admin.
+- The default values above should be used when the user has not customized the color.
+- The customization should be available from the same settings page as the sidebar color.
 
 ## Notes
 
-- Prefer faithful, production-quality implementations over quick fixes.
-- Do not break the existing settings page UX or the default theme.
+- Keep the default theme and modern theme behavior intact.
+- Preserve existing settings page UX conventions.

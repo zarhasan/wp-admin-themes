@@ -1,0 +1,141 @@
+/* WP Admin Themes — Classic theme color override.
+ *
+ * The bundled WP 6.9.5 stylesheets use hard-coded hex values for accents,
+ * sidebar, focus and highlights. This file injects a user-chosen accent on
+ * top of those stylesheets by overriding the same selectors WP 6.9.5 paints.
+ *
+ * The user's color is supplied by the plugin as the CSS variable
+ * --wpat-classic-color (defaults to #0073aa, the 6.9.5 blue scheme's link
+ * color). The sidebar, focus, and highlight palette is derived deterministically
+ * so each role keeps enough contrast against the chosen accent.
+ *
+ * Default values match the WP 6.9.5 "blue" admin color scheme (see
+ * wordpress-6.9.5/css/colors/blue/colors.css).
+ */
+
+body.wp-admin-theme-classic {
+	--wpat-classic-color: #0073aa;
+	--wpat-classic-color-rgb: 0, 115, 170;
+	--wpat-classic-link-hover: rgb(0, 149.5, 221);
+	--wpat-classic-sidebar-base: #52accc;
+	--wpat-classic-sidebar-hover: #096484;
+	--wpat-classic-focus: #096484;
+	--wpat-classic-highlight: #e1a948;
+	--wpat-classic-submenu-bg: #4796b3;
+	--wpat-classic-submenu-link: #e2ecf1;
+	--wpat-classic-submenu-icon: #e5f8ff;
+}
+
+body.wp-admin-theme-classic a,
+body.wp-admin-theme-classic .wp-core-ui .button-link,
+body.wp-admin-theme-classic .wp-core-ui .button-link:active,
+body.wp-admin-theme-classic .wp-core-ui .button-link:hover,
+body.wp-admin-theme-classic .row-title {
+	color: var(--wpat-classic-color);
+}
+
+body.wp-admin-theme-classic a:hover,
+body.wp-admin-theme-classic a:active,
+body.wp-admin-theme-classic a:focus,
+body.wp-admin-theme-classic .wp-core-ui .button-link:focus {
+	color: var(--wpat-classic-link-hover);
+}
+
+body.wp-admin-theme-classic input[type="text"]:focus,
+body.wp-admin-theme-classic input[type="password"]:focus,
+body.wp-admin-theme-classic input[type="search"]:focus,
+body.wp-admin-theme-classic input[type="email"]:focus,
+body.wp-admin-theme-classic input[type="url"]:focus,
+body.wp-admin-theme-classic input[type="number"]:focus,
+body.wp-admin-theme-classic textarea:focus,
+body.wp-admin-theme-classic select:focus {
+	border-color: var(--wpat-classic-focus);
+	box-shadow: 0 0 0 1px var(--wpat-classic-focus);
+}
+
+body.wp-admin-theme-classic .wp-ui-primary,
+body.wp-admin-theme-classic #adminmenuback,
+body.wp-admin-theme-classic #adminmenuwrap,
+body.wp-admin-theme-classic #adminmenu,
+body.wp-admin-theme-classic #wpadminbar,
+body.wp-admin-theme-classic #wpadminbar .menupop .ab-sub-wrapper,
+body.wp-admin-theme-classic #wpadminbar .ab-top-menu > li > .ab-item:focus + .ab-submenu {
+	background-color: var(--wpat-classic-sidebar-base);
+	color: var(--wpat-classic-submenu-link);
+}
+
+body.wp-admin-theme-classic #adminmenu a,
+body.wp-admin-theme-classic #adminmenu .wp-submenu a,
+body.wp-admin-theme-classic #adminmenu div.wp-menu-image:before,
+body.wp-admin-theme-classic #adminmenu .wp-submenu-head,
+body.wp-admin-theme-classic #wpadminbar a.ab-item,
+body.wp-admin-theme-classic #wpadminbar .ab-icon:before,
+body.wp-admin-theme-classic #wpadminbar .ab-label {
+	color: var(--wpat-classic-submenu-link);
+}
+
+body.wp-admin-theme-classic #adminmenu li.menu-top:hover,
+body.wp-admin-theme-classic #adminmenu li.menu-top:focus,
+body.wp-admin-theme-classic #adminmenu li.opensub > a.menu-top,
+body.wp-admin-theme-classic #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+body.wp-admin-theme-classic #adminmenu li.current a.menu-top,
+body.wp-admin-theme-classic #adminmenu .wp-submenu li.current a,
+body.wp-admin-theme-classic #wpadminbar .menupop li:hover > .ab-item,
+body.wp-admin-theme-classic #wpadminbar .menupop li:focus-within > .ab-item,
+body.wp-admin-theme-classic #wpadminbar > #wp-toolbar > #wp-admin-bar-root-default .ab-item:focus,
+body.wp-admin-theme-classic #wpadminbar .ab-top-menu > li.hover > .ab-item {
+	background-color: var(--wpat-classic-sidebar-hover);
+}
+
+body.wp-admin-theme-classic #adminmenu .wp-submenu {
+	background-color: var(--wpat-classic-submenu-bg);
+}
+
+body.wp-admin-theme-classic #wpadminbar .ab-submenu {
+	background: var(--wpat-classic-sidebar-hover);
+}
+
+body.wp-admin-theme-classic #adminmenu div.wp-menu-image:before,
+body.wp-admin-theme-classic #wpadminbar .ab-icon:before {
+	color: var(--wpat-classic-submenu-icon);
+}
+
+body.wp-admin-theme-classic .wp-ui-highlight,
+body.wp-admin-theme-classic .wp-ui-notification,
+body.wp-admin-theme-classic .wp-core-ui .button-primary,
+body.wp-admin-theme-classic .wp-core-ui .button-primary:hover,
+body.wp-admin-theme-classic .button-primary,
+body.wp-admin-theme-classic #adminmenu .awaiting-mod,
+body.wp-admin-theme-classic #adminmenu .update-plugins,
+body.wp-admin-theme-classic #adminmenu li.current a .awaiting-mod,
+body.wp-admin-theme-classic #adminmenu li.wp-has-current-submenu a .update-plugins,
+body.wp-admin-theme-classic .menu-counter,
+body.wp-admin-theme-classic .wp-pointer .wp-pointer-content h3,
+body.wp-admin-theme-classic .theme-overlay .theme-features li .button-primary,
+body.wp-admin-theme-classic .install-theme-info .theme-actions .button-primary {
+	background-color: var(--wpat-classic-highlight);
+	color: #fff;
+}
+
+body.wp-admin-theme-classic .wp-core-ui .button-primary {
+	border-color: var(--wpat-classic-highlight);
+}
+
+body.wp-admin-theme-classic .wrap .add-new-h2:hover,
+body.wp-admin-theme-classic .wrap .page-title-action:hover,
+body.wp-admin-theme-classic .tablenav .tablenav-pages a:hover,
+body.wp-admin-theme-classic .tablenav .tablenav-pages .current,
+body.wp-admin-theme-classic #wpadminbar .quicklinks li#wp-admin-bar-my-account.with-avatar > a,
+body.wp-admin-theme-classic .form-table tr th {
+	border-color: var(--wpat-classic-color);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	body.wp-admin-theme-classic a,
+	body.wp-admin-theme-classic .button,
+	body.wp-admin-theme-classic input,
+	body.wp-admin-theme-classic select,
+	body.wp-admin-theme-classic textarea {
+		transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+	}
+}
